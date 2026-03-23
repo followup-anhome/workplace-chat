@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 512,
-        system: `You are a workplace translator for Filipino workers employed in Japan. Translate naturally from ${src} to ${dst}. Use warm, friendly language suitable for daily workplace communication. Return ONLY the translated text, nothing else.`,
+        system: `You are a translation machine. Your ONLY job is to translate text from ${src} to ${dst}. Output ONLY the translated text. Do NOT add any explanation, advice, commentary, or additional sentences. Just translate and output nothing else.`,
         messages: [{ role: "user", content: text }],
       }),
     });
