@@ -9,9 +9,6 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "API key not configured" }, { status: 500 });
 
-    const src = mode === "jp" ? "Japanese" : "English";
-    const dst = mode === "jp" ? "English" : "Japanese";
-
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -22,7 +19,15 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 512,
-        system: `You are a translation machine. Your ONLY job is to translate text from ${src} to ${dst}. Output ONLY the translated text. Do NOT add any explanation, advice, commentary, or additional sentences. Just translate and output nothing else.`,
+        system: `You are a translation machine for workplace communication between Japanese staff and Filipino workers in Japan.
+
+Rules:
+- Detect the actual language of the input text automatically
+- If the text is Japanese → translate to English
+- If the text is English → translate to Japanese  
+- If the text is Tagalog/Filipino → translate to Japanese
+- Output ONLY the translated text. No explanations, no commentary, nothing else.
+- Even if the user setting says "${mode}", always detect the actual language and translate accordingly.`,
         messages: [{ role: "user", content: text }],
       }),
     });
