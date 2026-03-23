@@ -12,41 +12,58 @@ export default function RoomSelect({ name, onSelect }: { name: string; onSelect:
   const [custom, setCustom] = useState("");
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-sm">
-        <div className="mb-6">
-          <p className="text-sm text-gray-500">こんにちは / Hello, <span className="font-medium text-gray-800">{name}</span> 👋</p>
-          <h2 className="text-lg font-semibold text-gray-900 mt-1">現場を選んでください<br/><span className="text-base font-normal text-gray-500">Select your room</span></h2>
+    <div style={{minHeight:"100vh", background:"#f0f4f8", display:"flex", alignItems:"center", justifyContent:"center", padding:"16px"}}>
+      <div style={{background:"#ffffff", borderRadius:"20px", boxShadow:"0 4px 24px rgba(0,0,0,0.10)", padding:"32px", width:"100%", maxWidth:"360px"}}>
+        <div style={{marginBottom:"24px"}}>
+          <p style={{fontSize:"13px", color:"#6b7280", margin:"0 0 4px"}}>こんにちは / Hello, <strong style={{color:"#1a1a2e"}}>{name}</strong> 👋</p>
+          <h2 style={{fontSize:"18px", fontWeight:"700", color:"#1a1a2e", margin:"0"}}>現場を選んでください<br/><span style={{fontSize:"14px", fontWeight:"400", color:"#6b7280"}}>Select your room</span></h2>
         </div>
 
-        <div className="space-y-2 mb-4">
+        <div style={{display:"flex", flexDirection:"column", gap:"8px", marginBottom:"16px"}}>
           {PRESET_ROOMS.map(r => (
             <button
               key={r.id}
               onClick={() => onSelect(r.id)}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-left"
+              style={{
+                display:"flex", alignItems:"center", gap:"12px",
+                padding:"14px 16px", borderRadius:"12px",
+                border:"2px solid #e5e7eb", background:"#ffffff",
+                cursor:"pointer", textAlign:"left", transition:"all 0.15s"
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#2563eb"; (e.currentTarget as HTMLButtonElement).style.background = "#eff6ff"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#e5e7eb"; (e.currentTarget as HTMLButtonElement).style.background = "#ffffff"; }}
             >
-              <span className="text-xl">{r.icon}</span>
-              <span className="text-sm font-medium text-gray-800">{r.label}</span>
+              <span style={{fontSize:"22px"}}>{r.icon}</span>
+              <span style={{fontSize:"14px", fontWeight:"600", color:"#1a1a2e"}}>{r.label}</span>
             </button>
           ))}
         </div>
 
-        <div className="border-t border-gray-100 pt-4">
-          <p className="text-xs text-gray-400 mb-2">カスタム / Custom room</p>
-          <div className="flex gap-2">
+        <div style={{borderTop:"1px solid #e5e7eb", paddingTop:"16px"}}>
+          <p style={{fontSize:"12px", color:"#9ca3af", margin:"0 0 8px"}}>カスタム / Custom room</p>
+          <div style={{display:"flex", gap:"8px"}}>
             <input
               type="text"
               value={custom}
               onChange={e => setCustom(e.target.value)}
               onKeyDown={e => e.key === "Enter" && custom.trim() && onSelect(custom.trim())}
               placeholder="部屋名を入力..."
-              className="flex-1 px-3 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-blue-500"
+              style={{
+                flex:1, padding:"10px 14px", borderRadius:"10px",
+                border:"2px solid #e5e7eb", fontSize:"14px",
+                color:"#1a1a2e", background:"#ffffff",
+                outline:"none", fontFamily:"inherit"
+              }}
             />
             <button
               onClick={() => custom.trim() && onSelect(custom.trim())}
               disabled={!custom.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm disabled:opacity-40"
+              style={{
+                padding:"10px 16px", borderRadius:"10px",
+                background: custom.trim() ? "#2563eb" : "#d1d5db",
+                color:"#ffffff", border:"none",
+                fontSize:"16px", cursor: custom.trim() ? "pointer" : "not-allowed"
+              }}
             >→</button>
           </div>
         </div>
