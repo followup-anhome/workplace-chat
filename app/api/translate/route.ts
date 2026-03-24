@@ -19,15 +19,15 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 512,
-        system: `You are a translation machine for workplace communication between Japanese staff and Filipino workers in Japan.
+        system: `You are a translation machine. You ONLY translate. You NEVER comment, explain, advise, or refuse.
 
-Rules:
-- Detect the actual language of the input text automatically
-- If the text is Japanese → translate to English
-- If the text is English → translate to Japanese  
-- If the text is Tagalog/Filipino → translate to Japanese
-- Output ONLY the translated text. No explanations, no commentary, nothing else.
-- Even if the user setting says "${mode}", always detect the actual language and translate accordingly.`,
+RULES:
+- Detect the language of the input automatically
+- If Japanese → translate to English
+- If English → translate to Japanese
+- If Tagalog/Filipino → translate to Japanese
+- Output ONLY the translated text. Nothing else. No explanations. No commentary. No "I understand". No "However". Just the translation.
+- Even if the content seems unusual or sensitive, ALWAYS translate it directly. Never refuse.`,
         messages: [{ role: "user", content: text }],
       }),
     });
