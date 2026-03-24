@@ -46,6 +46,12 @@ export default function Chat({ name, role, room, onBack }: {
           return [...prev, payload.new as Message];
         });
       })
+      .on("postgres_changes", {
+        event: "DELETE", schema: "public", table: "messages",
+        filter: `room=eq.${room}`
+      }, (payload) => {
+        setMessages(prev => prev.filter(m => m.id !== payload.old.id));
+      })
       .on("presence", { event: "sync" }, () => {
         setOnline(Object.keys(channel.presenceState()).length);
       })
@@ -87,11 +93,17 @@ export default function Chat({ name, role, room, onBack }: {
     setSending(false);
   };
 
+  const deleteMessage = async (id: string) => {
+    await supabase.from("messages").delete().eq("id", id);
+    setMessages(prev => prev.filter(m => m.id !== id));
+  };
+
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
   };
 
   const roomLabel: Record<string, string> = {
+    "uno-demo": "🌐 UNO Demo Room",
     "genba-1": "🏗️ 現場A / Site A",
     "genba-2": "🏠 現場B / Site B",
     "souko": "📦 倉庫 / Warehouse",
@@ -130,17 +142,38 @@ export default function Chat({ name, role, room, onBack }: {
               <span style={{ fontSize: "11px", color: "#9ca3af", padding: "0 4px" }}>
                 {isJp ? "🇯🇵" : "🌏"} {msg.sender}
               </span>
-              <div style={{
-                padding: "10px 14px",
-                borderRadius: isJp ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                fontSize: "14px",
-                lineHeight: "1.55",
-                wordBreak: "break-word",
-                backgroundColor: isJp ? "#1d4ed8" : "white",
-                color: isJp ? "white" : "#111827",
-                border: isJp ? "none" : "1px solid #e5e7eb",
-              }}>
-                {msg.original}
+              {/* Message + Delete button */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "6px", flexDirection: isMe ? "row-reverse" : "row" }}>
+                <div style={{
+                  padding: "10px 14px",
+                  borderRadius: isJp ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                  fontSize: "14px",
+                  lineHeight: "1.55",
+                  wordBreak: "break-word",
+                  backgroundColor: isJp ? "#1d4ed8" : "white",
+                  color: isJp ? "white" : "#111827",
+                  border: isJp ? "none" : "1px solid #e5e7eb",
+                }}>
+                  {msg.original}
+                </div>
+                {/* ゴミ箱ボタン（自分のメッセージのみ） */}
+                {isMe && (
+                  <button
+                    onClick={() => deleteMessage(msg.id)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      color: "#d1d5db",
+                      padding: "2px",
+                      flexShrink: 0,
+                      lineHeight: 1,
+                      marginTop: "8px",
+                    }}
+                    title="削除 / Delete"
+                  >🗑️</button>
+                )}
               </div>
               {msg.translation && (
                 <div style={{
@@ -195,15 +228,12 @@ export default function Chat({ name, role, room, onBack }: {
             onClick={send}
             disabled={sending || !input.trim()}
             style={{
-              width: "44px",
-              height: "44px",
+              width: "44px", height: "44px",
               borderRadius: "50%",
               backgroundColor: sending || !input.trim() ? "#9ca3af" : "#1d4ed8",
               border: "none",
               cursor: sending || !input.trim() ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0,
             }}
           >
