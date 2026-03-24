@@ -204,8 +204,8 @@ export default function Chat({ name, role, room, onBack }: {
                 )}
               </div>
 
-              {/* 3言語翻訳表示 */}
-              {(t.ja || t.en || t.tl) && (
+              {/* 翻訳表示（日本語・英語のみ） */}
+              {(t.ja || t.en) && (
                 <div style={{
                   fontSize: "11px", color: "#374151",
                   backgroundColor: "#e5e7eb", borderRadius: "10px",
@@ -214,7 +214,6 @@ export default function Chat({ name, role, room, onBack }: {
                 }}>
                   {t.ja && msg.original !== t.ja && <div>🇯🇵 {t.ja}</div>}
                   {t.en && msg.original !== t.en && <div>🇺🇸 {t.en}</div>}
-                  {t.tl && msg.original !== t.tl && <div>🇵🇭 {t.tl}</div>}
                 </div>
               )}
             </div>
