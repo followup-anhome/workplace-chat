@@ -30,13 +30,15 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
 
         {/* Follow Up Logo ← ここに移動 */}
         <div style={{ textAlign: "center", marginBottom: "16px" }}>
-          <Image
-            src="/followup-logo.png"
-            alt="Follow Up Co., Ltd."
-            width={80}
-            height={80}
-            style={{ borderRadius: "50%" }}
-          />
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "4px" }}>
+            <Image
+              src="/followup-logo.png"
+              alt="Follow Up Co., Ltd."
+              width={80}
+              height={80}
+              style={{ borderRadius: "50%" }}
+            />
+          </div>
           <h1 style={{ fontSize: "17px", fontWeight: 700, color: "#0f2d5c", margin: "8px 0 0", fontFamily: "Helvetica, sans-serif" }}>
             Workplace Chat
           </h1>
