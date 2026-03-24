@@ -6,48 +6,23 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
   const [name, setName] = useState("");
 
   return (
-    <div style={{ minHeight: "100dvh", background: "linear-gradient(160deg, #0f2d5c 0%, #1a4a8a 50%, #0f2d5c 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+    <div style={{ minHeight: "100dvh", backgroundColor: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+      <div style={{ backgroundColor: "white", borderRadius: "20px", padding: "32px 28px", width: "100%", maxWidth: "360px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #e5e7eb" }}>
 
-      {/* UNO Header */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <div style={{ fontSize: "11px", color: "#93c5fd", letterSpacing: "3px", fontFamily: "Helvetica, sans-serif", marginBottom: "4px" }}>
-          POWERED BY
-        </div>
-        <div style={{ fontSize: "48px", fontWeight: 900, color: "white", fontFamily: "Helvetica, sans-serif", letterSpacing: "6px", lineHeight: 1 }}>
-          UNO
-        </div>
-        <div style={{ fontSize: "10px", color: "#bfdbfe", letterSpacing: "2px", fontFamily: "Helvetica, sans-serif", marginTop: "2px" }}>
-          OVERSEAS PLACEMENT, INC.
-        </div>
-        <div style={{ width: "50px", height: "2px", background: "#f59e0b", margin: "8px auto" }}></div>
-        <div style={{ fontSize: "11px", color: "#e0f2fe", fontFamily: "Helvetica, sans-serif", letterSpacing: "1px" }}>
-          Workplace Communication Tool
-        </div>
-      </div>
-
-      {/* Card */}
-      <div style={{ backgroundColor: "white", borderRadius: "20px", padding: "28px 24px", width: "100%", maxWidth: "360px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
-
-        {/* Follow Up Logo ← ここに移動 */}
-        <div style={{ textAlign: "center", marginBottom: "16px" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "4px" }}>
-            <Image
-              src="/followup-logo.png"
-              alt="Follow Up Co., Ltd."
-              width={80}
-              height={80}
-              style={{ borderRadius: "50%" }}
-            />
+        {/* Follow Up Logo */}
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+            <Image src="/followup-logo.png" alt="Follow Up Co., Ltd." width={72} height={72} style={{ borderRadius: "50%" }} />
           </div>
-          <h1 style={{ fontSize: "17px", fontWeight: 700, color: "#0f2d5c", margin: "8px 0 0", fontFamily: "Helvetica, sans-serif" }}>
+          <h1 style={{ fontSize: "18px", fontWeight: 700, color: "#111827", margin: 0, fontFamily: "Helvetica, sans-serif" }}>
             Workplace Chat
           </h1>
-          <p style={{ fontSize: "11px", color: "#6b7280", marginTop: "3px", fontFamily: "Helvetica, sans-serif" }}>
-            職場チャット — AI自動翻訳
+          <p style={{ fontSize: "11px", color: "#9ca3af", marginTop: "4px", fontFamily: "Helvetica, sans-serif" }}>
+            職場チャット — AI自動翻訳（開発版）
           </p>
         </div>
 
-        <div style={{ marginBottom: "18px" }}>
+        <div style={{ marginBottom: "16px" }}>
           <label style={{ fontSize: "12px", fontWeight: 600, color: "#374151", display: "block", marginBottom: "7px", fontFamily: "Helvetica, sans-serif" }}>
             あなたの名前 / Your name
           </label>
@@ -59,53 +34,32 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
             placeholder="例: 田中 / Juan"
             autoFocus
             style={{
-              width: "100%",
-              padding: "12px 16px",
-              borderRadius: "12px",
-              border: "2px solid #d1d5db",
-              fontSize: "16px",
-              color: "#111827",
-              backgroundColor: "white",
-              outline: "none",
-              boxSizing: "border-box",
-              WebkitTextFillColor: "#111827",
-              fontFamily: "Helvetica, sans-serif",
+              width: "100%", padding: "11px 16px", borderRadius: "12px",
+              border: "2px solid #d1d5db", fontSize: "16px", color: "#111827",
+              backgroundColor: "white", outline: "none", boxSizing: "border-box",
+              WebkitTextFillColor: "#111827", fontFamily: "Helvetica, sans-serif",
             }}
           />
         </div>
 
         <p style={{ fontSize: "11px", color: "#9ca3af", textAlign: "center", marginBottom: "16px", fontFamily: "Helvetica, sans-serif" }}>
-          💡 言語は自動で検出されます<br/>Language is detected automatically
+          💡 言語は自動で検出されます / Language detected automatically
         </p>
 
         <button
           onClick={() => name.trim() && onDone(name.trim(), "jp")}
           disabled={!name.trim()}
           style={{
-            width: "100%",
-            padding: "13px",
-            background: name.trim() ? "linear-gradient(135deg, #1a4a8a, #0f2d5c)" : "#d1d5db",
-            color: "white",
-            border: "none",
-            borderRadius: "12px",
-            fontSize: "15px",
-            fontWeight: 700,
+            width: "100%", padding: "13px",
+            background: name.trim() ? "#1d4ed8" : "#d1d5db",
+            color: "white", border: "none", borderRadius: "12px",
+            fontSize: "15px", fontWeight: 700,
             cursor: name.trim() ? "pointer" : "not-allowed",
             fontFamily: "Helvetica, sans-serif",
           }}
         >
           次へ → / Next →
         </button>
-      </div>
-
-      {/* Footer */}
-      <div style={{ marginTop: "16px", textAlign: "center" }}>
-        <p style={{ fontSize: "10px", color: "#60a5fa", fontFamily: "Helvetica, sans-serif", margin: 0 }}>
-          In partnership with Follow Up Co., Ltd.
-        </p>
-        <p style={{ fontSize: "9px", color: "#93c5fd", fontFamily: "Helvetica, sans-serif", margin: "2px 0 0" }}>
-          Philippine and Japan Cross Linking
-        </p>
       </div>
     </div>
   );
