@@ -8,7 +8,7 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
   return (
     <div style={{ minHeight: "100dvh", background: "linear-gradient(160deg, #0f2d5c 0%, #1a4a8a 50%, #0f2d5c 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px" }}>
 
-      {/* UNO + Follow Up Logo Area */}
+      {/* UNO Header */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
         <div style={{ fontSize: "11px", color: "#93c5fd", letterSpacing: "3px", fontFamily: "Helvetica, sans-serif", marginBottom: "4px" }}>
           POWERED BY
@@ -28,9 +28,16 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
       {/* Card */}
       <div style={{ backgroundColor: "white", borderRadius: "20px", padding: "28px 24px", width: "100%", maxWidth: "360px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
 
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <div style={{ fontSize: "26px", marginBottom: "6px" }}>🤝</div>
-          <h1 style={{ fontSize: "17px", fontWeight: 700, color: "#0f2d5c", margin: 0, fontFamily: "Helvetica, sans-serif" }}>
+        {/* Follow Up Logo ← ここに移動 */}
+        <div style={{ textAlign: "center", marginBottom: "16px" }}>
+          <Image
+            src="/followup-logo.png"
+            alt="Follow Up Co., Ltd."
+            width={80}
+            height={80}
+            style={{ borderRadius: "50%" }}
+          />
+          <h1 style={{ fontSize: "17px", fontWeight: 700, color: "#0f2d5c", margin: "8px 0 0", fontFamily: "Helvetica, sans-serif" }}>
             Workplace Chat
           </h1>
           <p style={{ fontSize: "11px", color: "#6b7280", marginTop: "3px", fontFamily: "Helvetica, sans-serif" }}>
@@ -89,19 +96,12 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
         </button>
       </div>
 
-      {/* Follow Up Logo at bottom */}
-      <div style={{ marginTop: "20px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-        <Image
-          src="/followup-logo.png"
-          alt="Follow Up Co., Ltd."
-          width={60}
-          height={60}
-          style={{ borderRadius: "50%", opacity: 0.9 }}
-        />
-        <p style={{ fontSize: "10px", color: "#93c5fd", fontFamily: "Helvetica, sans-serif", margin: 0 }}>
+      {/* Footer */}
+      <div style={{ marginTop: "16px", textAlign: "center" }}>
+        <p style={{ fontSize: "10px", color: "#60a5fa", fontFamily: "Helvetica, sans-serif", margin: 0 }}>
           In partnership with Follow Up Co., Ltd.
         </p>
-        <p style={{ fontSize: "9px", color: "#60a5fa", fontFamily: "Helvetica, sans-serif", margin: 0 }}>
+        <p style={{ fontSize: "9px", color: "#93c5fd", fontFamily: "Helvetica, sans-serif", margin: "2px 0 0" }}>
           Philippine and Japan Cross Linking
         </p>
       </div>
