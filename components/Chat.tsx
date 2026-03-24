@@ -23,6 +23,7 @@ const ROOM_LABELS: Record<string, string> = {
   "karl-design":   "🎨 Design / Karl",
   "anna-global":   "🌏 Global / Anna",
   "shimizu-arch":  "🏗️ Architecture / Shimizu",
+  "walkin-support": "💻 Walk in Home サポート",
 };
 
 export default function Chat({ name, role, room, onBack }: {
@@ -83,6 +84,23 @@ export default function Chat({ name, role, room, onBack }: {
     if (textareaRef.current) textareaRef.current.style.height = "auto";
 
     try {
+      // Walk in Homeサポートルームは専用AIを使用
+      if (room === "walkin-support") {
+        const res = await fetch("/api/walkin-support", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+        const data = await res.json();
+        await supabase.from("messages").insert({
+          room, sender: name, role,
+          original: text,
+          translation: JSON.stringify({ en: data.reply, ja: "" }),
+        });
+        setSending(false);
+        return;
+      }
+
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
