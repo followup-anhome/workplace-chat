@@ -79,13 +79,17 @@ export default function Chat({ name, role, room, onBack }: {
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, mode: role }),
+        body: JSON.stringify({ text }),
       });
-      const { translated } = await res.json();
+      const data = await res.json();
+      // JSON形式（新）またはstring形式（旧）に対応
+      const translationStr = data.translations
+        ? JSON.stringify(data.translations)
+        : data.translated || "";
       await supabase.from("messages").insert({
         room, sender: name, role,
         original: text,
-        translation: translated || "",
+        translation: translationStr,
       });
     } catch (e) {
       console.error(e);
@@ -175,20 +179,34 @@ export default function Chat({ name, role, room, onBack }: {
                   >🗑️</button>
                 )}
               </div>
-              {msg.translation && (
-                <div style={{
-                  fontSize: "12px",
-                  color: "#374151",
-                  backgroundColor: "#e5e7eb",
-                  borderRadius: "10px",
-                  padding: "5px 10px",
-                  lineHeight: "1.45",
-                  wordBreak: "break-word",
-                  maxWidth: "100%",
-                }}>
-                  {msg.translation}
-                </div>
-              )}
+              {msg.translation && (() => {
+                // JSON形式（新）またはstring形式（旧）に対応
+                try {
+                  const t = JSON.parse(msg.translation);
+                  return (
+                    <div style={{
+                      fontSize: "12px", color: "#374151",
+                      backgroundColor: "#e5e7eb", borderRadius: "10px",
+                      padding: "5px 10px", lineHeight: "1.6",
+                      wordBreak: "break-word", maxWidth: "100%",
+                    }}>
+                      {t.ja && msg.original !== t.ja && <div>🇯🇵 {t.ja}</div>}
+                      {t.en && msg.original !== t.en && <div>🇺🇸 {t.en}</div>}
+                    </div>
+                  );
+                } catch {
+                  return (
+                    <div style={{
+                      fontSize: "12px", color: "#374151",
+                      backgroundColor: "#e5e7eb", borderRadius: "10px",
+                      padding: "5px 10px", lineHeight: "1.45",
+                      wordBreak: "break-word", maxWidth: "100%",
+                    }}>
+                      {msg.translation}
+                    </div>
+                  );
+                }
+              })()}
             </div>
           );
         })}
