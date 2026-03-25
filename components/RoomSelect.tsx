@@ -1,5 +1,5 @@
-import { LANGUAGES } from "./NameSetup";
 "use client";
+import { LANGUAGES } from "./NameSetup";
 import { useState } from "react";
 
 const PRESET_ROOMS = [
