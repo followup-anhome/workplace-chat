@@ -1,17 +1,29 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 
-const FLAGS = ["🇯🇵","🇵🇭","🇻🇳","🇳🇵","🇨🇳","🇮🇳","🇵🇰","🇩🇪","🇮🇩","🇲🇲","🇺🇸"];
+export const LANGUAGES = [
+  { code: "ja", label: "日本語",          flag: "🇯🇵", name: "日本" },
+  { code: "tl", label: "Tagalog",         flag: "🇵🇭", name: "Philippines" },
+  { code: "vi", label: "Tiếng Việt",      flag: "🇻🇳", name: "Việt Nam" },
+  { code: "ne", label: "नेपाली",           flag: "🇳🇵", name: "Nepal" },
+  { code: "zh", label: "中文",             flag: "🇨🇳", name: "中国" },
+  { code: "hi", label: "हिन्दी",            flag: "🇮🇳", name: "India" },
+  { code: "ur", label: "اردو",             flag: "🇵🇰", name: "Pakistan" },
+  { code: "de", label: "Deutsch",         flag: "🇩🇪", name: "Deutschland" },
+  { code: "id", label: "Indonesia",       flag: "🇮🇩", name: "Indonesia" },
+  { code: "my", label: "မြန်မာ",            flag: "🇲🇲", name: "Myanmar" },
+  { code: "en", label: "English",         flag: "🇺🇸", name: "English" },
+];
 
-export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp" | "en") => void }) {
+export default function NameSetup({ onDone }: {
+  onDone: (name: string, langCode: string) => void
+}) {
   const [name, setName] = useState("");
-  const [frame, setFrame] = useState(0);
+  const [lang, setLang] = useState("");
 
-  useEffect(() => {
-    const id = setInterval(() => setFrame(f => (f + 1) % FLAGS.length), 700);
-    return () => clearInterval(id);
-  }, []);
+  const canEnter = name.trim() && lang;
+  const selected = LANGUAGES.find(l => l.code === lang);
 
   return (
     <div style={{
@@ -20,92 +32,47 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "16px"
     }}>
 
-      {/* ヘッダー */}
-      <div style={{ textAlign: "center", marginBottom: "18px" }}>
-
-        {/* 学校ロゴエリア */}
+      {/* 学校ヘッダー */}
+      <div style={{ textAlign: "center", marginBottom: "16px" }}>
         <div style={{
-          background: "rgba(255,255,255,0.12)", borderRadius: "16px",
-          padding: "12px 20px", marginBottom: "12px", border: "1px solid rgba(255,255,255,0.2)"
+          background: "rgba(255,255,255,0.12)", borderRadius: "14px",
+          padding: "10px 20px", marginBottom: "10px", border: "1px solid rgba(255,255,255,0.2)"
         }}>
-          <div style={{ fontSize: "11pt", fontWeight: 900, color: "white", fontFamily: "Helvetica, sans-serif", letterSpacing: "1px" }}>
-            🏫 泉佐野市立佐野中学校
+          <div style={{ fontSize: "11pt", fontWeight: 900, color: "white", fontFamily: "Helvetica, sans-serif" }}>
+            🏫 泉佐野市立佐野中学校　夜間学級
           </div>
-          <div style={{ fontSize: "9pt", color: "#bfdbfe", fontFamily: "Helvetica, sans-serif", marginTop: "2px" }}>
-            夜間学級
-          </div>
-          <div style={{ width: "40px", height: "2px", background: "#f59e0b", margin: "6px auto" }}></div>
-          <div style={{ fontSize: "8.5pt", color: "#e0f2fe", fontFamily: "Helvetica, sans-serif" }}>
-            Izumisano City Sano Junior High School — Evening Class
+          <div style={{ fontSize: "8pt", color: "#bfdbfe", fontFamily: "Helvetica, sans-serif", marginTop: "2px" }}>
+            Sano Junior High School — Evening Class
           </div>
         </div>
-
-        {/* フォローアップロゴ */}
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-          <Image src="/followup-logo.png" alt="Follow Up" width={44} height={44}
-            style={{ borderRadius: "50%", border: "2px solid rgba(255,255,255,0.35)" }} />
-          <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: "9pt", color: "white", fontWeight: 700, fontFamily: "Helvetica, sans-serif" }}>
-              Workplace Chat
-            </div>
-            <div style={{ fontSize: "7.5pt", color: "#93c5fd", fontFamily: "Helvetica, sans-serif" }}>
-              by フォローアップ株式会社
-            </div>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+          <Image src="/followup-logo.png" alt="Follow Up" width={36} height={36}
+            style={{ borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }} />
+          <div style={{ fontSize: "8pt", color: "#93c5fd", fontFamily: "Helvetica, sans-serif" }}>
+            AI翻訳チャット　by フォローアップ株式会社
           </div>
-        </div>
-
-        {/* フラグアニメーション */}
-        <div style={{ display: "flex", justifyContent: "center", gap: "5px", marginBottom: "5px" }}>
-          {FLAGS.map((flag, i) => (
-            <span key={i} style={{
-              fontSize: i === frame % FLAGS.length ? "18pt" : "12pt",
-              transition: "font-size 0.3s",
-              opacity: i === frame % FLAGS.length ? 1 : 0.45,
-            }}>{flag}</span>
-          ))}
-        </div>
-        <div style={{ fontSize: "8pt", color: "#93c5fd", fontFamily: "Helvetica, sans-serif" }}>
-          11言語 AI自動翻訳対応
         </div>
       </div>
 
       {/* カード */}
       <div style={{
-        backgroundColor: "white", borderRadius: "20px", padding: "22px 20px",
-        width: "100%", maxWidth: "360px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
+        backgroundColor: "white", borderRadius: "20px", padding: "20px 18px",
+        width: "100%", maxWidth: "380px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
       }}>
 
-        {/* 多言語歓迎メッセージ */}
-        <div style={{
-          backgroundColor: "#f0f9ff", borderRadius: "10px", padding: "10px 12px",
-          marginBottom: "14px", border: "1px solid #bae6fd"
-        }}>
-          <p style={{ fontSize: "9px", color: "#0369a1", fontFamily: "Helvetica, sans-serif", lineHeight: "1.9", margin: 0, textAlign: "center" }}>
-            ようこそ！ Welcome! Maligayang pagdating!<br/>
-            Chào mừng! स्वागत छ! Selamat datang!<br/>
-            ကြိုဆိုပါသည်! 欢迎! स्वागत है! خوش آمدید! Willkommen!
-          </p>
-        </div>
-
-        <div style={{ textAlign: "center", marginBottom: "12px" }}>
-          <p style={{ fontSize: "12px", fontWeight: 700, color: "#0c3547", fontFamily: "Helvetica, sans-serif" }}>
-            あなたの名前を入力してください
-          </p>
-          <p style={{ fontSize: "9px", color: "#9ca3af", fontFamily: "Helvetica, sans-serif", marginTop: "3px" }}>
-            Enter your name · どの言語でも入力できます
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "14px" }}>
+        {/* STEP 1: 名前 */}
+        <div style={{ marginBottom: "16px" }}>
+          <div style={{ fontSize: "9pt", fontWeight: 700, color: "#0c3547", fontFamily: "Helvetica, sans-serif", marginBottom: "6px" }}>
+            ① あなたの名前 / Your name
+          </div>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && name.trim() && onDone(name.trim(), "jp")}
             placeholder="例: 田中 / Maria / Nguyen / Ram"
             autoFocus
             style={{
-              width: "100%", padding: "13px 16px", borderRadius: "12px",
+              width: "100%", padding: "11px 14px", borderRadius: "10px",
               border: "2px solid #d1d5db", fontSize: "16px", color: "#111827",
               backgroundColor: "white", outline: "none", boxSizing: "border-box",
               WebkitTextFillColor: "#111827", fontFamily: "Helvetica, sans-serif",
@@ -113,27 +80,63 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
           />
         </div>
 
+        {/* STEP 2: 母国語選択 */}
+        <div style={{ marginBottom: "16px" }}>
+          <div style={{ fontSize: "9pt", fontWeight: 700, color: "#0c3547", fontFamily: "Helvetica, sans-serif", marginBottom: "7px" }}>
+            ② あなたの言語を選んでください / Select your language
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+            {LANGUAGES.map(l => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                style={{
+                  padding: "8px 4px", borderRadius: "9px", cursor: "pointer",
+                  border: `2px solid ${lang === l.code ? "#1a6b8a" : "#e5e7eb"}`,
+                  background: lang === l.code ? "linear-gradient(135deg, #ecfeff, #cffafe)" : "white",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: "3px",
+                  transition: "all 0.15s",
+                }}
+              >
+                <span style={{ fontSize: "18pt" }}>{l.flag}</span>
+                <span style={{ fontSize: "8pt", fontWeight: lang === l.code ? 700 : 500,
+                  color: lang === l.code ? "#0c3547" : "#374151", fontFamily: "Helvetica, sans-serif",
+                  lineHeight: 1.2, textAlign: "center" }}>
+                  {l.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 選択中の表示 */}
+        {selected && (
+          <div style={{
+            backgroundColor: "#ecfeff", borderRadius: "8px", padding: "8px 12px",
+            marginBottom: "12px", border: "1px solid #67e8f9", textAlign: "center"
+          }}>
+            <span style={{ fontSize: "16pt" }}>{selected.flag}</span>
+            <span style={{ fontSize: "9pt", color: "#0c3547", fontWeight: 700,
+              marginLeft: "6px", fontFamily: "Helvetica, sans-serif" }}>
+              {selected.label}　で表示します
+            </span>
+          </div>
+        )}
+
         <button
-          onClick={() => name.trim() && onDone(name.trim(), "jp")}
-          disabled={!name.trim()}
+          onClick={() => canEnter && onDone(name.trim(), lang)}
+          disabled={!canEnter}
           style={{
             width: "100%", padding: "13px",
-            background: name.trim() ? "linear-gradient(135deg, #1a6b8a, #0c3547)" : "#d1d5db",
+            background: canEnter ? "linear-gradient(135deg, #1a6b8a, #0c3547)" : "#d1d5db",
             color: "white", border: "none", borderRadius: "12px",
             fontSize: "15px", fontWeight: 700,
-            cursor: name.trim() ? "pointer" : "not-allowed",
+            cursor: canEnter ? "pointer" : "not-allowed",
             fontFamily: "Helvetica, sans-serif",
           }}
         >
           入室する / Enter →
         </button>
-      </div>
-
-      {/* フッター */}
-      <div style={{ marginTop: "12px", textAlign: "center" }}>
-        <p style={{ fontSize: "8.5px", color: "#60a5fa", fontFamily: "Helvetica, sans-serif", margin: 0 }}>
-          Powered by フォローアップ株式会社 · Philippine and Japan Cross Linking
-        </p>
       </div>
     </div>
   );

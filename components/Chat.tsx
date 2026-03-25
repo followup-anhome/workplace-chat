@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { LANGUAGES } from "./NameSetup";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,66 +11,57 @@ const supabase = createClient(
 type Message = {
   id: string;
   sender: string;
-  role: "jp" | "en";
+  lang_code: string;
   original: string;
-  translation: string;
+  translation: string; // JSON文字列 {ja,en,tl,vi,...}
   created_at: string;
 };
 
-type Translations = { ja?: string; en?: string; detected?: string };
+type Translations = Record<string, string>;
 
 const ROOM_LABELS: Record<string, string> = {
   "class-all": "🏫 全体チャット / All Class",
-  "kokugo":    "📖 国語 / Japanese Language",
-  "sugaku":    "📐 数学 / Mathematics",
-  "rika":      "🔬 理科 / Science",
-  "shakai":    "🌍 社会 / Social Studies",
-  "eigo":      "🗣️ 英語 / English",
-  "nichigo":   "✍️ 日本語教室 / Japanese Class",
+  "kokugo":    "📖 国語",
+  "sugaku":    "📐 数学",
+  "rika":      "🔬 理科",
+  "shakai":    "🌍 社会",
+  "eigo":      "🗣️ 英語",
+  "nichigo":   "✍️ 日本語教室",
 };
 
-// 言語検出フラグ
-const LANG_FLAG: Record<string, string> = {
-  "Japanese": "🇯🇵", "English": "🇺🇸",
-  "Tagalog": "🇵🇭", "Filipino": "🇵🇭", "Taglish": "🇵🇭",
-  "Vietnamese": "🇻🇳", "Nepali": "🇳🇵",
-  "Indonesian": "🇮🇩", "Burmese": "🇲🇲", "Myanmar": "🇲🇲",
-};
-
-export default function Chat({ name, role, room, onBack }: {
-  name: string; role: "jp" | "en"; room: string; onBack: () => void;
+export default function Chat({ name, langCode, room, onBack }: {
+  name: string; langCode: string; room: string; onBack: () => void;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
-  const [online, setOnline] = useState(0);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [input, setInput]       = useState("");
+  const [sending, setSending]   = useState(false);
+  const [online, setOnline]     = useState(0);
+  const bottomRef  = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const myLang = LANGUAGES.find(l => l.code === langCode);
 
   useEffect(() => {
     supabase.from("messages").select("*").eq("room", room)
-      .order("created_at", { ascending: true }).limit(50)
+      .order("created_at", { ascending: true }).limit(60)
       .then(({ data }) => { if (data) setMessages(data as Message[]); });
 
     const channel = supabase.channel(`room:${room}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `room=eq.${room}` },
-        (payload) => {
-          setMessages(prev => {
-            if (prev.find(m => m.id === payload.new.id)) return prev;
-            return [...prev, payload.new as Message];
-          });
-        })
+        payload => setMessages(prev =>
+          prev.find(m => m.id === payload.new.id) ? prev : [...prev, payload.new as Message]
+        ))
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: `room=eq.${room}` },
-        (payload) => setMessages(prev => prev.filter(m => m.id !== payload.old.id)))
+        payload => setMessages(prev => prev.filter(m => m.id !== payload.old.id)))
       .on("presence", { event: "sync" }, () => {
         setOnline(Object.keys(channel.presenceState()).length);
       })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") await channel.track({ name, role });
+      .subscribe(async status => {
+        if (status === "SUBSCRIBED") await channel.track({ name, langCode });
       });
 
     return () => { supabase.removeChannel(channel); };
-  }, [room, name, role]);
+  }, [room, name, langCode]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -91,9 +83,12 @@ export default function Chat({ name, role, room, onBack }: {
       const data = await res.json();
       const translationStr = data.translations
         ? JSON.stringify(data.translations)
-        : data.translated || "";
+        : "{}";
+
       await supabase.from("messages").insert({
-        room, sender: name, role,
+        room, sender: name,
+        lang_code: langCode,
+        role: "en", // 後方互換
         original: text,
         translation: translationStr,
       });
@@ -110,35 +105,45 @@ export default function Chat({ name, role, room, onBack }: {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
   };
 
-  const parseTranslations = (msg: Message): Translations => {
-    try { return JSON.parse(msg.translation) as Translations; }
-    catch { return {}; }
+  // 自分の言語に合わせた翻訳を返す
+  const getMyTranslation = (msg: Message): string => {
+    try {
+      const t: Translations = JSON.parse(msg.translation);
+      // 送信者と同じ言語なら翻訳不要
+      if (msg.lang_code === langCode) return "";
+      return t[langCode] || t["en"] || "";
+    } catch { return ""; }
   };
 
-  const getFlag = (msg: Message) => {
-    const t = parseTranslations(msg);
-    if (t.detected && LANG_FLAG[t.detected]) return LANG_FLAG[t.detected];
-    return "💬";
+  // 送信者のフラグ
+  const getSenderFlag = (msg: Message) => {
+    const l = LANGUAGES.find(l => l.code === msg.lang_code);
+    return l ? l.flag : "💬";
+  };
+
+  // 送信者の言語ラベル
+  const getSenderLang = (msg: Message) => {
+    const l = LANGUAGES.find(l => l.code === msg.lang_code);
+    return l ? l.label : "";
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100dvh", maxWidth: "500px", margin: "0 auto", backgroundColor: "#f3f4f6" }}>
 
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg, #0f2d5c, #1d4ed8)", padding: "11px 16px", display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+      <div style={{ background: "linear-gradient(135deg, #0c3547, #1a6b8a)", padding: "11px 16px", display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
         <button onClick={onBack} style={{ color: "white", fontSize: "20px", background: "none", border: "none", cursor: "pointer" }}>←</button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ color: "white", fontWeight: 700, fontSize: "13px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {ROOM_LABELS[room] || `🏷️ ${room}`}
           </div>
           <div style={{ color: "#bfdbfe", fontSize: "10px" }}>
-            {name}
-            {online > 0 && <span style={{ marginLeft: "7px", color: "#86efac" }}>● {online}人オンライン</span>}
+            {myLang?.flag} {name}（{myLang?.label}）
+            {online > 0 && <span style={{ marginLeft: "7px", color: "#86efac" }}>● {online}人</span>}
           </div>
         </div>
-        {/* 7言語バッジ */}
-        <div style={{ fontSize: "10px", background: "rgba(255,255,255,0.12)", borderRadius: "8px", padding: "3px 8px", color: "#bfdbfe", whiteSpace: "nowrap" }}>
-          🇯🇵🇺🇸🇵🇭🇻🇳🇳🇵🇮🇩🇲🇲🇨🇳🇮🇳🇵🇰🇩🇪
+        <div style={{ fontSize: "9px", background: "rgba(255,255,255,0.12)", borderRadius: "7px", padding: "3px 8px", color: "#bfdbfe" }}>
+          {myLang?.flag} で表示中
         </div>
       </div>
 
@@ -146,30 +151,33 @@ export default function Chat({ name, role, room, onBack }: {
       <div style={{ flex: 1, overflowY: "auto", padding: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
         {messages.length === 0 && (
           <div style={{ textAlign: "center", color: "#9ca3af", fontSize: "12px", marginTop: "30px" }}>
-            <div style={{ fontSize: "28px", marginBottom: "6px" }}>💬</div>
-            <p>どの言語でもメッセージを送れます</p>
-            <p style={{ fontSize: "10px", marginTop: "3px", lineHeight: "1.8" }}>
-              🇯🇵 日本語 · 🇺🇸 English · 🇵🇭 Tagalog<br/>
-              🇻🇳 Việt · 🇳🇵 नेपाली · 🇮🇩 Indonesia · 🇲🇲 မြန်မာ
+            <div style={{ fontSize: "28px", marginBottom: "8px" }}>💬</div>
+            <p>あなたの言語でメッセージを送れます</p>
+            <p style={{ fontSize: "10px", marginTop: "4px", color: "#bae6fd" }}>
+              {myLang?.flag} {myLang?.label} で表示されます
             </p>
           </div>
         )}
 
         {messages.map(msg => {
           const isMe = msg.sender === name;
-          const t = parseTranslations(msg);
-          const flag = getFlag(msg);
+          const myTranslation = getMyTranslation(msg);
+          const senderFlag = getSenderFlag(msg);
+          const senderLang = getSenderLang(msg);
 
           return (
             <div key={msg.id} style={{
               display: "flex", flexDirection: "column", gap: "3px",
               maxWidth: "85%", alignSelf: isMe ? "flex-end" : "flex-start",
-              alignItems: isMe ? "flex-end" : "flex-start"
+              alignItems: isMe ? "flex-end" : "flex-start",
             }}>
+              {/* 送信者名・言語 */}
               <span style={{ fontSize: "10px", color: "#9ca3af", padding: "0 4px" }}>
-                {flag} {msg.sender}
+                {senderFlag} {msg.sender}
+                {!isMe && <span style={{ fontSize: "9px", color: "#bae6fd", marginLeft: "4px" }}>({senderLang})</span>}
               </span>
 
+              {/* メッセージ本体 */}
               <div style={{ display: "flex", alignItems: "flex-start", gap: "5px", flexDirection: isMe ? "row-reverse" : "row" }}>
                 <div style={{
                   padding: "9px 13px",
@@ -189,15 +197,19 @@ export default function Chat({ name, role, room, onBack }: {
                 )}
               </div>
 
-              {/* 翻訳表示：日本語 + 英語 */}
-              {(t.ja || t.en) && (
+              {/* 翻訳：自分の母国語で表示（送信者と言語が違う場合のみ） */}
+              {!isMe && myTranslation && (
                 <div style={{
-                  fontSize: "11px", color: "#374151", backgroundColor: "#e5e7eb",
-                  borderRadius: "10px", padding: "5px 10px", lineHeight: "1.7",
-                  wordBreak: "break-word", maxWidth: "100%",
+                  fontSize: "12px", color: "#374151",
+                  backgroundColor: "#e0f2fe",
+                  border: "1px solid #bae6fd",
+                  borderRadius: "10px", padding: "6px 11px",
+                  lineHeight: "1.6", wordBreak: "break-word", maxWidth: "100%",
                 }}>
-                  {t.ja && msg.original !== t.ja && <div>🇯🇵 {t.ja}</div>}
-                  {t.en && msg.original !== t.en && <div>🇺🇸 {t.en}</div>}
+                  <span style={{ fontSize: "10px", color: "#0891b2", fontWeight: 700 }}>
+                    {myLang?.flag} {myLang?.label}
+                  </span>
+                  <div style={{ marginTop: "2px" }}>{myTranslation}</div>
                 </div>
               )}
             </div>
@@ -209,25 +221,30 @@ export default function Chat({ name, role, room, onBack }: {
       {/* Input */}
       <div style={{ backgroundColor: "white", borderTop: "1px solid #e5e7eb", padding: "10px 14px", flexShrink: 0 }}>
         <div style={{ display: "flex", gap: "8px", alignItems: "flex-end" }}>
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={e => {
-              setInput(e.target.value);
-              e.currentTarget.style.height = "auto";
-              e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight, 120) + "px";
-            }}
-            onKeyDown={handleKey}
-            placeholder="🇯🇵🇺🇸🇵🇭🇻🇳🇳🇵🇮🇩🇲🇲🇨🇳🇮🇳🇵🇰🇩🇪 どの言語でも入力できます"
-            rows={1}
-            style={{
-              flex: 1, resize: "none", borderRadius: "20px",
-              border: "2px solid #d1d5db", padding: "10px 16px",
-              fontSize: "14px", color: "#111827", backgroundColor: "white",
-              outline: "none", fontFamily: "inherit", minWidth: 0,
-              WebkitTextFillColor: "#111827",
-            }}
-          />
+          <div style={{ position: "relative", flex: 1 }}>
+            <div style={{ position: "absolute", top: "8px", left: "12px", fontSize: "14px", pointerEvents: "none" }}>
+              {myLang?.flag}
+            </div>
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={e => {
+                setInput(e.target.value);
+                e.currentTarget.style.height = "auto";
+                e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight, 120) + "px";
+              }}
+              onKeyDown={handleKey}
+              placeholder={`${myLang?.label}で入力... / Type in ${myLang?.label}`}
+              rows={1}
+              style={{
+                width: "100%", resize: "none", borderRadius: "20px",
+                border: "2px solid #d1d5db", padding: "10px 16px 10px 34px",
+                fontSize: "14px", color: "#111827", backgroundColor: "white",
+                outline: "none", fontFamily: "inherit", boxSizing: "border-box",
+                WebkitTextFillColor: "#111827",
+              }}
+            />
+          </div>
           <button
             onClick={send}
             disabled={sending || !input.trim()}

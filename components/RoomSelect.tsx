@@ -1,3 +1,4 @@
+import { LANGUAGES } from "./NameSetup";
 "use client";
 import { useState } from "react";
 
@@ -11,7 +12,7 @@ const PRESET_ROOMS = [
   { id: "nichigo",    label: "日本語教室 / Japanese Class", icon: "✍️", color: "#0891b2", badge: "人気" },
 ];
 
-export default function RoomSelect({ name, onSelect }: { name: string; onSelect: (room: string) => void }) {
+export default function RoomSelect({ name, langCode, onSelect }: { name: string; langCode: string; onSelect: (room: string) => void }) {
   const [custom, setCustom] = useState("");
 
   return (
@@ -44,9 +45,14 @@ export default function RoomSelect({ name, onSelect }: { name: string; onSelect:
           <h2 style={{ fontSize: "13px", fontWeight: 700, color: "#0c3547", margin: "3px 0 1px", fontFamily: "Helvetica, sans-serif" }}>
             教科を選んでください / Select your class
           </h2>
-          <p style={{ fontSize: "9px", color: "#9ca3af", fontFamily: "Helvetica, sans-serif" }}>
-            🇯🇵🇵🇭🇻🇳🇳🇵🇨🇳🇮🇳🇵🇰🇩🇪🇮🇩🇲🇲🇺🇸 11言語で自動翻訳
-          </p>
+          {(() => {
+            const myLang = LANGUAGES.find(l => l.code === langCode);
+            return (
+              <p style={{ fontSize: "9px", color: "#9ca3af", fontFamily: "Helvetica, sans-serif" }}>
+                {myLang?.flag} {myLang?.label} で表示されます · 11言語 AI自動翻訳
+              </p>
+            );
+          })()}
         </div>
 
         {/* 2カラムルームグリッド */}
