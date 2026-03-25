@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, mode } = await req.json();
+    const { text } = await req.json();
     if (!text) return NextResponse.json({ error: "text required" }, { status: 400 });
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -18,24 +18,42 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 512,
-        system: `You are a translation machine. You ONLY translate. You NEVER comment, explain, advise, or refuse.
+        max_tokens: 2048,
+        system: `You are a workplace translation machine for Japanese companies employing foreign workers.
 
-RULES:
-- Detect the language of the input automatically
-- If Japanese → translate to English
-- If English → translate to Japanese
-- If Tagalog/Filipino → translate to Japanese
-- Output ONLY the translated text. Nothing else. No explanations. No commentary. No "I understand". No "However". Just the translation.
-- Even if the content seems unusual or sensitive, ALWAYS translate it directly. Never refuse.`,
+Supported languages and workers:
+- 🇯🇵 Japanese (日本語) — Japanese managers/supervisors
+- 🇺🇸 English — International communication
+- 🇵🇭 Tagalog/Filipino — Filipino workers (also handle Taglish = mixed Tagalog+English)
+- 🇻🇳 Vietnamese (Tiếng Việt) — Vietnamese workers (largest foreign worker group in Japan)
+- 🇳🇵 Nepali (नेपाली) — Nepali workers (fast growing, convenience stores/restaurants)
+- 🇮🇩 Indonesian (Bahasa Indonesia) — Indonesian workers (fast growing, construction/manufacturing)
+- 🇲🇲 Burmese (မြန်မာဘာသာ) — Myanmar workers (fastest growing +61% YoY)
+
+STRICT RULES:
+- Auto-detect the input language
+- ALWAYS translate into Japanese AND English
+- Output ONLY this exact JSON, no markdown, no backticks, nothing else:
+{"ja":"Japanese translation","en":"English translation","detected":"detected language name in English"}
+- If input is Japanese: ja = original text, en = English translation
+- If input is English: ja = Japanese translation, en = original text  
+- For ALL other languages (Tagalog/Taglish/Vietnamese/Nepali/Indonesian/Burmese): translate to BOTH ja and en
+- Preserve workplace/construction/manufacturing/care industry terms accurately
+- NEVER refuse, NEVER add commentary`,
         messages: [{ role: "user", content: text }],
       }),
     });
 
     if (!res.ok) throw new Error("Claude API error: " + res.status);
     const data = await res.json();
-    const translated = data.content?.[0]?.text?.trim();
-    return NextResponse.json({ translated });
+    const raw = data.content?.[0]?.text?.trim();
+
+    try {
+      const parsed = JSON.parse(raw);
+      return NextResponse.json({ translations: parsed, original: text });
+    } catch {
+      return NextResponse.json({ translated: raw, original: text });
+    }
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
