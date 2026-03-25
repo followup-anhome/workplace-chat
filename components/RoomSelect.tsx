@@ -43,7 +43,9 @@ export default function RoomSelect({ name, onSelect }: { name: string; onSelect:
               key={r.id}
               onClick={() => onSelect(r.id)}
               style={{
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                display: "flex",
+                flexDirection: r.id === "demo-room" ? "row" : "column",
+                alignItems: "center", justifyContent: "center",
                 padding: "10px 8px", borderRadius: "10px", gap: "4px",
                 border: `2px solid ${r.id === "demo-room" ? r.color : "#e5e7eb"}`,
                 background: r.id === "demo-room"
@@ -52,9 +54,7 @@ export default function RoomSelect({ name, onSelect }: { name: string; onSelect:
                 color: r.id === "demo-room" ? "white" : "#111827",
                 cursor: "pointer", fontFamily: "Helvetica, sans-serif",
                 position: "relative",
-                // DEMOルームは2カラム幅に
                 gridColumn: r.id === "demo-room" ? "1 / -1" : "auto",
-                flexDirection: r.id === "demo-room" ? "row" : "column",
               }}
             >
               <span style={{ fontSize: r.id === "demo-room" ? "18pt" : "16pt" }}>{r.icon}</span>
