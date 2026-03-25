@@ -138,7 +138,7 @@ export default function Chat({ name, role, room, onBack }: {
         </div>
         {/* 7言語バッジ */}
         <div style={{ fontSize: "10px", background: "rgba(255,255,255,0.12)", borderRadius: "8px", padding: "3px 8px", color: "#bfdbfe", whiteSpace: "nowrap" }}>
-          🇯🇵🇺🇸🇵🇭🇻🇳🇳🇵🇮🇩🇲🇲
+          🇯🇵🇺🇸🇵🇭🇻🇳🇳🇵🇮🇩🇲🇲🇨🇳🇮🇳🇵🇰🇩🇪
         </div>
       </div>
 
@@ -218,7 +218,7 @@ export default function Chat({ name, role, room, onBack }: {
               e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight, 120) + "px";
             }}
             onKeyDown={handleKey}
-            placeholder="🇯🇵日本語 · 🇺🇸English · 🇵🇭Tagalog · 🇻🇳Việt · 🇳🇵नेपाली · 🇮🇩Indonesia · 🇲🇲မြန်မာ"
+            placeholder="🇯🇵🇺🇸🇵🇭🇻🇳🇳🇵🇮🇩🇲🇲🇨🇳🇮🇳🇵🇰🇩🇪 どの言語でも入力できます"
             rows={1}
             style={{
               flex: 1, resize: "none", borderRadius: "20px",
@@ -244,7 +244,7 @@ export default function Chat({ name, role, room, onBack }: {
           </button>
         </div>
         <p style={{ fontSize: "8.5px", color: "#9ca3af", textAlign: "center", marginTop: "4px" }}>
-          7言語 AI自動翻訳 · Powered by Claude AI
+          11言語 AI自動翻訳 · Powered by Claude AI
         </p>
       </div>
     </div>

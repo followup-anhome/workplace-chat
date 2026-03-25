@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
-const FLAGS = ["🇯🇵","🇺🇸","🇵🇭","🇻🇳","🇳🇵","🇮🇩","🇲🇲"];
+const FLAGS = ["🇯🇵","🇺🇸","🇵🇭","🇻🇳","🇳🇵","🇮🇩","🇲🇲","🇨🇳","🇮🇳","🇵🇰","🇩🇪"];
 
 export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp" | "en") => void }) {
   const [name, setName] = useState("");
@@ -45,10 +45,10 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
           ))}
         </div>
         <div style={{ fontSize: "9pt", color: "#e0f2fe", fontFamily: "Helvetica, sans-serif" }}>
-          7言語対応 AI自動翻訳チャット
+          11言語対応 AI自動翻訳チャット
         </div>
         <div style={{ fontSize: "8pt", color: "#93c5fd", fontFamily: "Helvetica, sans-serif", marginTop: "2px" }}>
-          JP · EN · 🇵🇭 · 🇻🇳 · 🇳🇵 · 🇮🇩 · 🇲🇲 Auto-translated
+          🇯🇵🇺🇸🇵🇭🇻🇳🇳🇵🇮🇩🇲🇲🇨🇳🇮🇳🇵🇰🇩🇪 Auto-translated
         </div>
       </div>
 
