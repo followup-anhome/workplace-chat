@@ -19,13 +19,13 @@ type Message = {
 type Translations = { ja?: string; en?: string; detected?: string };
 
 const ROOM_LABELS: Record<string, string> = {
-  "genba-a":   "🏗️ 現場A / Site A",
-  "genba-b":   "🏠 現場B / Site B",
-  "souko":     "📦 倉庫 / Warehouse",
-  "kaigo":     "🤝 介護 / Care",
-  "factory":   "🏭 工場 / Factory",
-  "jimu":      "🏢 事務所 / Office",
-  "demo-room": "🌐 DEMOルーム / Demo Room",
+  "class-all": "🏫 全体チャット / All Class",
+  "kokugo":    "📖 国語 / Japanese Language",
+  "sugaku":    "📐 数学 / Mathematics",
+  "rika":      "🔬 理科 / Science",
+  "shakai":    "🌍 社会 / Social Studies",
+  "eigo":      "🗣️ 英語 / English",
+  "nichigo":   "✍️ 日本語教室 / Japanese Class",
 };
 
 // 言語検出フラグ
@@ -175,7 +175,7 @@ export default function Chat({ name, role, room, onBack }: {
                   padding: "9px 13px",
                   borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
                   fontSize: "14px", lineHeight: "1.55", wordBreak: "break-word",
-                  background: isMe ? "linear-gradient(135deg, #1d4ed8, #0f2d5c)" : "white",
+                  background: isMe ? "linear-gradient(135deg, #1a6b8a, #0c3547)" : "white",
                   color: isMe ? "white" : "#111827",
                   border: isMe ? "none" : "1px solid #e5e7eb",
                 }}>
@@ -233,7 +233,7 @@ export default function Chat({ name, role, room, onBack }: {
             disabled={sending || !input.trim()}
             style={{
               width: "42px", height: "42px", borderRadius: "50%",
-              background: sending || !input.trim() ? "#9ca3af" : "linear-gradient(135deg, #1d4ed8, #0f2d5c)",
+              background: sending || !input.trim() ? "#9ca3af" : "linear-gradient(135deg, #1a6b8a, #0c3547)",
               border: "none", cursor: sending || !input.trim() ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}
@@ -244,7 +244,7 @@ export default function Chat({ name, role, room, onBack }: {
           </button>
         </div>
         <p style={{ fontSize: "8.5px", color: "#9ca3af", textAlign: "center", marginTop: "4px" }}>
-          11言語 AI自動翻訳 · Powered by Claude AI
+          🏫 佐野中学校 夜間学級 · 11言語 AI翻訳 · by フォローアップ株式会社
         </p>
       </div>
     </div>
