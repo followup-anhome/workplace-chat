@@ -1,42 +1,45 @@
 "use client";
 import { useState } from "react";
+import { LANGUAGES } from "./NameSetup";
 
 const PRESET_ROOMS = [
-  { id: "genba-a",    label: "現場A / Site A",          icon: "🏗️", color: "#1d4ed8" },
-  { id: "genba-b",    label: "現場B / Site B",          icon: "🏠", color: "#1d4ed8" },
-  { id: "souko",      label: "倉庫 / Warehouse",         icon: "📦", color: "#7c3aed" },
-  { id: "kaigo",      label: "介護 / Care",              icon: "🤝", color: "#059669" },
-  { id: "factory",    label: "工場 / Factory",           icon: "🏭", color: "#d97706" },
-  { id: "jimu",       label: "事務所 / Office",          icon: "🏢", color: "#0891b2" },
-  { id: "demo-room",  label: "DEMOルーム / Demo Room",   icon: "🌐", color: "#0f2d5c", badge: "DEMO" },
+  { id: "genba-a",    label: "現場A / Site A",        icon: "🏗️", color: "#1d4ed8" },
+  { id: "genba-b",    label: "現場B / Site B",        icon: "🏠", color: "#1d4ed8" },
+  { id: "souko",      label: "倉庫 / Warehouse",       icon: "📦", color: "#7c3aed" },
+  { id: "kaigo",      label: "介護 / Care",            icon: "🤝", color: "#059669" },
+  { id: "factory",    label: "工場 / Factory",         icon: "🏭", color: "#d97706" },
+  { id: "jimu",       label: "事務所 / Office",        icon: "🏢", color: "#0891b2" },
+  { id: "demo-room",  label: "DEMOルーム",             icon: "🌐", color: "#0f2d5c", badge: "DEMO" },
 ];
 
-export default function RoomSelect({ name, onSelect }: { name: string; onSelect: (room: string) => void }) {
+export default function RoomSelect({ name, langCode, onSelect }: {
+  name: string; langCode: string; onSelect: (room: string) => void
+}) {
   const [custom, setCustom] = useState("");
+  const myLang = LANGUAGES.find(l => l.code === langCode);
 
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(160deg, #0f2d5c 0%, #1a4a8a 40%, #0f2d5c 100%)",
+      background: "linear-gradient(160deg, #0f2d5c 0%, #1d4ed8 50%, #0f2d5c 100%)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: "16px"
     }}>
       <div style={{
         backgroundColor: "white", borderRadius: "20px", padding: "22px 20px",
         width: "100%", maxWidth: "380px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
       }}>
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "14px" }}>
           <p style={{ fontSize: "12px", color: "#6b7280", fontFamily: "Helvetica, sans-serif" }}>
             Welcome, <strong style={{ color: "#0f2d5c" }}>{name}</strong> 👋
           </p>
-          <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#0f2d5c", margin: "3px 0 1px", fontFamily: "Helvetica, sans-serif" }}>
+          <h2 style={{ fontSize: "13px", fontWeight: 700, color: "#0f2d5c", margin: "3px 0 2px", fontFamily: "Helvetica, sans-serif" }}>
             現場を選んでください / Select your room
           </h2>
           <p style={{ fontSize: "9px", color: "#9ca3af", fontFamily: "Helvetica, sans-serif" }}>
-            🇵🇭🇻🇳🇳🇵🇮🇩🇲🇲 どの言語でも自動翻訳 · Auto-translated in all languages
+            {myLang?.flag} {myLang?.label} で表示されます · 11言語 AI自動翻訳
           </p>
         </div>
 
-        {/* 2カラムグリッド */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px", marginBottom: "12px" }}>
           {PRESET_ROOMS.map(r => (
             <button
@@ -46,11 +49,10 @@ export default function RoomSelect({ name, onSelect }: { name: string; onSelect:
                 display: "flex",
                 flexDirection: r.id === "demo-room" ? "row" : "column",
                 alignItems: "center", justifyContent: "center",
-                padding: "10px 8px", borderRadius: "10px", gap: "4px",
+                padding: "10px 8px", borderRadius: "10px", gap: "5px",
                 border: `2px solid ${r.id === "demo-room" ? r.color : "#e5e7eb"}`,
                 background: r.id === "demo-room"
-                  ? "linear-gradient(135deg, #0f2d5c, #1a4a8a)"
-                  : "white",
+                  ? "linear-gradient(135deg, #0f2d5c, #1d4ed8)" : "white",
                 color: r.id === "demo-room" ? "white" : "#111827",
                 cursor: "pointer", fontFamily: "Helvetica, sans-serif",
                 position: "relative",
@@ -63,21 +65,18 @@ export default function RoomSelect({ name, onSelect }: { name: string; onSelect:
               </span>
               {r.badge && (
                 <span style={{
-                  position: "absolute", top: "6px", right: "8px",
+                  position: "absolute", top: "5px", right: "8px",
                   fontSize: "8px", background: "#f59e0b", color: "white",
                   padding: "1px 7px", borderRadius: "99px", fontWeight: 700
-                }}>
-                  {r.badge}
-                </span>
+                }}>{r.badge}</span>
               )}
             </button>
           ))}
         </div>
 
-        {/* カスタム */}
         <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "12px" }}>
           <p style={{ fontSize: "9px", color: "#9ca3af", marginBottom: "7px", fontFamily: "Helvetica, sans-serif" }}>
-            カスタムルーム / Custom room name
+            カスタムルーム / Custom room
           </p>
           <div style={{ display: "flex", gap: "7px" }}>
             <input

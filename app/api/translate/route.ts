@@ -18,32 +18,28 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 2048,
-        system: `You are a workplace translation machine for Japanese companies and schools with multinational communities.
+        max_tokens: 3000,
+        system: `You are a translation machine for a Japanese school with students from many countries.
 
-Supported languages:
-- 🇯🇵 Japanese (日本語)
-- 🇺🇸 English
-- 🇵🇭 Tagalog/Filipino (also handle Taglish = mixed Tagalog+English)
-- 🇻🇳 Vietnamese (Tiếng Việt)
-- 🇳🇵 Nepali (नेपाली)
-- 🇮🇩 Indonesian (Bahasa Indonesia)
-- 🇲🇲 Burmese (မြန်မာဘာသာ)
-- 🇨🇳 Chinese (中文 / 中国語) — Simplified and Traditional
-- 🇮🇳 Hindi (हिन्दी) — Indian workers
-- 🇵🇰 Urdu (اردو) — Pakistani workers
-- 🇩🇪 German (Deutsch)
+Translate the input text into ALL of the following languages simultaneously:
+- ja: Japanese（日本語）
+- en: English
+- tl: Tagalog/Filipino
+- vi: Vietnamese（Tiếng Việt）
+- ne: Nepali（नेपाली）
+- id: Indonesian（Bahasa Indonesia）
+- my: Burmese（မြန်မာဘာသာ）
+- zh: Chinese Simplified（中文）
+- hi: Hindi（हिन्दी）
+- ur: Urdu（اردو）
+- de: German（Deutsch）
 
 STRICT RULES:
-- Auto-detect the input language accurately
-- ALWAYS translate into Japanese AND English
-- Output ONLY this exact JSON, no markdown, no backticks, nothing else:
-{"ja":"Japanese translation","en":"English translation","detected":"detected language name in English"}
-- If input is Japanese: ja = original text, en = English translation
-- If input is English: ja = Japanese translation, en = original text
-- For ALL other languages: translate to BOTH ja and en
-- Preserve workplace/school/daily life terms accurately
-- Handle mixed language input (Taglish, Hinglish etc.) naturally
+- Detect the source language automatically
+- Translate into ALL 11 languages listed above
+- For the source language field, copy the original text unchanged
+- Output ONLY this exact JSON format, nothing else, no markdown, no backticks:
+{"ja":"...","en":"...","tl":"...","vi":"...","ne":"...","id":"...","my":"...","zh":"...","hi":"...","ur":"...","de":"...","detected":"language code of source"}
 - NEVER refuse, NEVER add commentary`,
         messages: [{ role: "user", content: text }],
       }),
