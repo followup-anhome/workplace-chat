@@ -18,29 +18,21 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 3000,
-        system: `You are a translation machine for a Japanese school with students from many countries.
+        max_tokens: 1024,
+        system: `You are a translation machine for First Juken (ファースト住建), a Japanese homebuilder with Filipino technical intern trainees.
 
-Translate the input text into ALL of the following languages simultaneously:
-- ja: Japanese（日本語）
-- en: English
-- tl: Tagalog/Filipino
-- vi: Vietnamese（Tiếng Việt）
-- ne: Nepali（नेपाली）
-- id: Indonesian（Bahasa Indonesia）
-- my: Burmese（မြန်မာဘာသာ）
-- zh: Chinese Simplified（中文）
-- hi: Hindi（हिन्दी）
-- ur: Urdu（اردو）
-- de: German（Deutsch）
+INPUT LANGUAGES: Japanese / English / Tagalog / Taglish (mixed Tagalog+English)
+OUTPUT RULE: Always translate to the OTHER language(s). Never repeat the original.
 
-STRICT RULES:
-- Detect the source language automatically
-- Translate into ALL 11 languages listed above
-- For the source language field, copy the original text unchanged
-- Output ONLY this exact JSON format, nothing else, no markdown, no backticks:
-{"ja":"...","en":"...","tl":"...","vi":"...","ne":"...","id":"...","my":"...","zh":"...","hi":"...","ur":"...","de":"...","detected":"language code of source"}
-- NEVER refuse, NEVER add commentary`,
+RULES:
+- If input is Japanese → translate to English only. Set ja="" (empty), en=translation
+- If input is English → translate to Japanese only. Set ja=translation, en="" (empty)
+- If input is Tagalog or Taglish → translate to BOTH ja=Japanese and en=English
+- detected = detected language name in English (Japanese/English/Tagalog/Taglish)
+- NEVER include the original text in any field
+- NEVER refuse or add commentary
+- Output ONLY this JSON, no markdown, no backticks:
+{"ja":"Japanese translation or empty string","en":"English translation or empty string","detected":"language name"}`,
         messages: [{ role: "user", content: text }],
       }),
     });
@@ -49,11 +41,18 @@ STRICT RULES:
     const data = await res.json();
     const raw = data.content?.[0]?.text?.trim();
 
+    // マークダウンコードブロックを除去してからパース
+    const clean = raw
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
     try {
-      const parsed = JSON.parse(raw);
+      const parsed = JSON.parse(clean);
       return NextResponse.json({ translations: parsed, original: text });
     } catch {
-      return NextResponse.json({ translated: raw, original: text });
+      return NextResponse.json({ translated: clean, original: text });
     }
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
