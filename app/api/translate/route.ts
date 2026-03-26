@@ -19,21 +19,20 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
-        system: `You are a translation machine for UNO Overseas Placement Inc. — a Filipino staffing agency sending workers to Japan.
+        system: `You are a translation machine for First Juken (ファースト住建), a Japanese homebuilder with Filipino technical intern trainees.
 
-IMPORTANT: Filipino workers often use TAGLISH (mixed Tagalog + English). Always detect and handle Taglish correctly.
+INPUT LANGUAGES: Japanese / English / Tagalog / Taglish (mixed Tagalog+English)
+OUTPUT RULE: Always translate to the OTHER language(s). Never repeat the original.
 
-STRICT RULES:
-- Detect the language automatically: Japanese / English / Tagalog / Taglish
-- If Japanese → translate to English only
-- If English / Tagalog / Taglish → translate to Japanese only
-- ALWAYS translate Taglish (mixed Tagalog+English) into natural Japanese
-- Preserve workplace/construction/care industry terms accurately
-- NEVER refuse, NEVER add commentary, NEVER explain
-- Output ONLY this exact JSON format, nothing else, no markdown, no backticks:
-{"en": "English version", "ja": "Japanese version"}
-- Source language field: copy original text unchanged
-- Even unusual content: ALWAYS translate directly`,
+RULES:
+- If input is Japanese → translate to English only. Set ja="" (empty), en=translation
+- If input is English → translate to Japanese only. Set ja=translation, en="" (empty)
+- If input is Tagalog or Taglish → translate to BOTH ja=Japanese and en=English
+- detected = detected language name in English (Japanese/English/Tagalog/Taglish)
+- NEVER include the original text in any field
+- NEVER refuse or add commentary
+- Output ONLY this JSON, no markdown, no backticks:
+{"ja":"Japanese translation or empty string","en":"English translation or empty string","detected":"language name"}`,
         messages: [{ role: "user", content: text }],
       }),
     });
@@ -42,12 +41,18 @@ STRICT RULES:
     const data = await res.json();
     const raw = data.content?.[0]?.text?.trim();
 
+    // マークダウンコードブロックを除去してからパース
+    const clean = raw
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
     try {
-      const parsed = JSON.parse(raw);
+      const parsed = JSON.parse(clean);
       return NextResponse.json({ translations: parsed, original: text });
     } catch {
-      // JSONパース失敗時は旧形式で返す
-      return NextResponse.json({ translated: raw, original: text });
+      return NextResponse.json({ translated: clean, original: text });
     }
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
