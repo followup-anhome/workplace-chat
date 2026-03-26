@@ -5,49 +5,32 @@ export async function POST(req: NextRequest) {
   try {
     const { text } = await req.json();
     if (!text) return NextResponse.json({ error: "text required" }, { status: 400 });
-
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "API key not configured" }, { status: 500 });
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
+      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
-        system: `You are a translation machine for First Juken (ファースト住建), a Japanese homebuilder with Filipino technical intern trainees.
-
-INPUT LANGUAGES: Japanese / English / Tagalog / Taglish (mixed Tagalog+English)
-OUTPUT RULE: Always translate to the OTHER language(s). Never repeat the original.
-
+        system: `You are a community translation machine for Filipino residents in Japan.
+INPUT: Japanese / English / Tagalog / Taglish
 RULES:
-- If input is Japanese → translate to English only. Set ja="" (empty), en=translation
-- If input is English → translate to Japanese only. Set ja=translation, en="" (empty)
-- If input is Tagalog or Taglish → translate to BOTH ja=Japanese and en=English
-- detected = detected language name in English (Japanese/English/Tagalog/Taglish)
-- NEVER include the original text in any field
-- NEVER refuse or add commentary
+- If input is Japanese → en=English translation, ja="" (empty)
+- If input is English → ja=Japanese translation, en="" (empty)  
+- If input is Tagalog or Taglish → ja=Japanese, en=English (both)
+- NEVER repeat the original text in any field
 - Output ONLY this JSON, no markdown, no backticks:
-{"ja":"Japanese translation or empty string","en":"English translation or empty string","detected":"language name"}`,
+{"ja":"Japanese or empty","en":"English or empty","detected":"language name"}`,
         messages: [{ role: "user", content: text }],
       }),
     });
 
     if (!res.ok) throw new Error("Claude API error: " + res.status);
     const data = await res.json();
-    const raw = data.content?.[0]?.text?.trim();
-
-    // マークダウンコードブロックを除去してからパース
-    const clean = raw
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/\s*```$/i, "")
-      .trim();
-
+    const raw = data.content?.[0]?.text?.trim() || "";
+    const clean = raw.replace(/^```json\s*/i,"").replace(/^```\s*/i,"").replace(/\s*```$/i,"").trim();
     try {
       const parsed = JSON.parse(clean);
       return NextResponse.json({ translations: parsed, original: text });
