@@ -32,7 +32,7 @@ export default function RoomSelect({ name, onSelect }: { name: string; onSelect:
                 border: `2px solid ${r.badge === "TODAY" ? "#0ea5e9" : "#e5e7eb"}`,
                 background: r.badge === "TODAY" ? "linear-gradient(135deg, #0ea5e9, #1a3a5c)" : "white",
                 color: r.badge === "TODAY" ? "white" : "#111827",
-                cursor: "pointer", textAlign: "left", flexDirection: "column", alignItems: "flex-start", gap: "4px"
+                cursor: "pointer", flexDirection: "column", alignItems: "flex-start", gap: "4px"
               }}>
               <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
                 <span style={{ fontSize: "13px", fontWeight: 700 }}>{r.label}</span>
