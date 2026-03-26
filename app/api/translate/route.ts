@@ -41,11 +41,18 @@ RULES:
     const data = await res.json();
     const raw = data.content?.[0]?.text?.trim();
 
+    // マークダウンコードブロックを除去してからパース
+    const clean = raw
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
     try {
-      const parsed = JSON.parse(raw);
+      const parsed = JSON.parse(clean);
       return NextResponse.json({ translations: parsed, original: text });
     } catch {
-      return NextResponse.json({ translated: raw, original: text });
+      return NextResponse.json({ translated: clean, original: text });
     }
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
