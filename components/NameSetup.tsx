@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
+
 
 export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp" | "en") => void }) {
   const [name, setName] = useState("");
@@ -16,7 +16,7 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
         <div style={{ fontSize: "9pt", color: "#fecaca", fontFamily: "Helvetica, sans-serif" }}>Staff Chat　スタッフチャット</div>
         <div style={{ fontSize: "8pt", color: "#fca5a5", fontFamily: "Helvetica, sans-serif", marginTop: "4px" }}>🇯🇵 日本語 ⇄ 🇺🇸 English ⇄ 🇵🇭 Tagalog　AI自動翻訳</div>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", marginTop: "12px" }}>
-          <Image src="/followup-logo.png" alt="Follow Up" width={32} height={32} style={{ borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }} />
+          <img src="/followup-logo.png" alt="Follow Up" style={{ borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }} />
           <span style={{ fontSize: "8pt", color: "#fca5a5", fontFamily: "Helvetica, sans-serif" }}>Powered by フォローアップ株式会社</span>
         </div>
       </div>
