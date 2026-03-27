@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+
 
 export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp" | "en") => void }) {
   const [name, setName] = useState("");
@@ -23,7 +23,7 @@ export default function NameSetup({ onDone }: { onDone: (name: string, role: "jp
 
         {/* フォローアップロゴ */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
-          <Image src="/followup-logo.png" alt="Follow Up" width={64} height={64}
+          <img src="/followup-logo.png" alt="Follow Up"
             style={{ borderRadius: "50%", border: "3px solid rgba(255,255,255,0.4)" }} />
         </div>
 
