@@ -96,10 +96,15 @@ export default function NameSetup({ onDone }: {
                   transition: "all 0.15s",
                 }}
               >
-                <span style={{
-                  fontSize: "16pt", lineHeight: 1,
-                  fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif"
-                }}>{l.flag}</span>
+                <img
+                  src={`https://flagcdn.com/24x18/${
+                    l.code==="ja"?"jp":l.code==="tl"?"ph":l.code==="vi"?"vn":
+                    l.code==="ne"?"np":l.code==="zh"?"cn":l.code==="hi"?"in":
+                    l.code==="ur"?"pk":l.code==="my"?"mm":l.code==="en"?"us":l.code
+                  }.png`}
+                  alt={l.name}
+                  style={{ width: "28px", height: "21px", borderRadius: "2px", objectFit: "cover" }}
+                />
                 <span style={{ fontSize: "8pt", fontWeight: lang === l.code ? 700 : 500,
                   color: lang === l.code ? "#0c3547" : "#374151", fontFamily: "Helvetica, sans-serif",
                   lineHeight: 1.2, textAlign: "center" }}>
