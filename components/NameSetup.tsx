@@ -1,18 +1,17 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 
 export const LANGUAGES = [
   { code: "ja", label: "日本語",          flag: "🇯🇵", name: "日本" },
   { code: "tl", label: "Tagalog",         flag: "🇵🇭", name: "Philippines" },
-  { code: "vi", label: "Tiếng Việt",      flag: "🇻🇳", name: "Việt Nam" },
-  { code: "ne", label: "नेपाली",           flag: "🇳🇵", name: "Nepal" },
+  { code: "vi", label: "Viet Nam",      flag: "🇻🇳", name: "Việt Nam" },
+  { code: "ne", label: "Nepali",           flag: "🇳🇵", name: "Nepal" },
   { code: "zh", label: "中文",             flag: "🇨🇳", name: "中国" },
-  { code: "hi", label: "हिन्दी",            flag: "🇮🇳", name: "India" },
-  { code: "ur", label: "اردو",             flag: "🇵🇰", name: "Pakistan" },
+  { code: "hi", label: "Hindi",            flag: "🇮🇳", name: "India" },
+  { code: "ur", label: "Urdu",             flag: "🇵🇰", name: "Pakistan" },
   { code: "de", label: "Deutsch",         flag: "🇩🇪", name: "Deutschland" },
   { code: "id", label: "Indonesia",       flag: "🇮🇩", name: "Indonesia" },
-  { code: "my", label: "မြန်မာ",            flag: "🇲🇲", name: "Myanmar" },
+  { code: "my", label: "Myanmar",            flag: "🇲🇲", name: "Myanmar" },
   { code: "en", label: "English",         flag: "🇺🇸", name: "English" },
 ];
 
@@ -46,8 +45,7 @@ export default function NameSetup({ onDone }: {
           </div>
         </div>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}>
-          <Image src="/followup-logo.png" alt="Follow Up" width={36} height={36}
-            style={{ borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }} />
+          <img src="/followup-logo.png" alt="Follow Up" style={{ width: "36px", height: "36px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }} />
           <div style={{ fontSize: "8pt", color: "#93c5fd", fontFamily: "Helvetica, sans-serif" }}>
             AI翻訳チャット　by フォローアップ株式会社
           </div>
@@ -98,7 +96,10 @@ export default function NameSetup({ onDone }: {
                   transition: "all 0.15s",
                 }}
               >
-                <span style={{ fontSize: "18pt" }}>{l.flag}</span>
+                <span style={{
+                  fontSize: "16pt", lineHeight: 1,
+                  fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif"
+                }}>{l.flag}</span>
                 <span style={{ fontSize: "8pt", fontWeight: lang === l.code ? 700 : 500,
                   color: lang === l.code ? "#0c3547" : "#374151", fontFamily: "Helvetica, sans-serif",
                   lineHeight: 1.2, textAlign: "center" }}>
