@@ -109,8 +109,7 @@ export default function Chat({ name, langCode, room, onBack }: {
   const getMyTranslation = (msg: Message): string => {
     try {
       const t: Translations = JSON.parse(msg.translation);
-      // 送信者と同じ言語なら翻訳不要
-      if (msg.lang_code === langCode) return "";
+      // 自分の言語の翻訳を返す（送信者が誰であっても表示する）
       return t[langCode] || t["en"] || "";
     } catch { return ""; }
   };
@@ -197,16 +196,16 @@ export default function Chat({ name, langCode, room, onBack }: {
                 )}
               </div>
 
-              {/* 翻訳：自分の母国語で表示（送信者と言語が違う場合のみ） */}
-              {!isMe && myTranslation && (
+              {/* 翻訳：自分の母国語で表示（入力言語と自分の言語が違う場合） */}
+              {myTranslation && msg.lang_code !== langCode && (
                 <div style={{
                   fontSize: "12px", color: "#374151",
-                  backgroundColor: "#e0f2fe",
-                  border: "1px solid #bae6fd",
+                  backgroundColor: isMe ? "#f0fdf4" : "#e0f2fe",
+                  border: `1px solid ${isMe ? "#86efac" : "#bae6fd"}`,
                   borderRadius: "10px", padding: "6px 11px",
                   lineHeight: "1.6", wordBreak: "break-word", maxWidth: "100%",
                 }}>
-                  <span style={{ fontSize: "10px", color: "#0891b2", fontWeight: 700 }}>
+                  <span style={{ fontSize: "10px", color: isMe ? "#16a34a" : "#0891b2", fontWeight: 700 }}>
                     {myLang?.flag} {myLang?.label}
                   </span>
                   <div style={{ marginTop: "2px" }}>{myTranslation}</div>
