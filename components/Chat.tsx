@@ -106,11 +106,20 @@ export default function Chat({ name, langCode, room, onBack }: {
   };
 
   // 自分の言語に合わせた翻訳を返す
-  const getMyTranslation = (msg: Message): string => {
+  // 日本語訳を返す（共用語・全員に表示）
+  const getJaTranslation = (msg: Message): string => {
     try {
       const t: Translations = JSON.parse(msg.translation);
-      // 自分の言語の翻訳を返す（送信者が誰であっても表示する）
-      return t[langCode] || t["en"] || "";
+      return t["ja"] || "";
+    } catch { return ""; }
+  };
+
+  // 母国語訳を返す（日本語話者には不要）
+  const getNativeTranslation = (msg: Message): string => {
+    if (langCode === "ja") return "";
+    try {
+      const t: Translations = JSON.parse(msg.translation);
+      return t[langCode] || "";
     } catch { return ""; }
   };
 
@@ -160,9 +169,11 @@ export default function Chat({ name, langCode, room, onBack }: {
 
         {messages.map(msg => {
           const isMe = msg.sender === name;
-          const myTranslation = getMyTranslation(msg);
+          const jaText = getJaTranslation(msg);
+          const nativeText = getNativeTranslation(msg);
           const senderFlag = getSenderFlag(msg);
           const senderLang = getSenderLang(msg);
+          const jaLang = LANGUAGES.find(l => l.code === "ja");
 
           return (
             <div key={msg.id} style={{
@@ -196,21 +207,39 @@ export default function Chat({ name, langCode, room, onBack }: {
                 )}
               </div>
 
-              {/* 翻訳：自分の母国語で表示（入力言語と自分の言語が違う場合） */}
-              {myTranslation && msg.lang_code !== langCode && (
-                <div style={{
-                  fontSize: "12px", color: "#374151",
-                  backgroundColor: isMe ? "#f0fdf4" : "#e0f2fe",
-                  border: `1px solid ${isMe ? "#86efac" : "#bae6fd"}`,
-                  borderRadius: "10px", padding: "6px 11px",
-                  lineHeight: "1.6", wordBreak: "break-word", maxWidth: "100%",
-                }}>
-                  <span style={{ fontSize: "10px", color: isMe ? "#16a34a" : "#0891b2", fontWeight: 700 }}>
-                    {myLang?.flag} {myLang?.label}
-                  </span>
-                  <div style={{ marginTop: "2px" }}>{myTranslation}</div>
-                </div>
-              )}
+              {/* 翻訳バブル：日本語（共用語）＋母国語の2行表示 */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px", maxWidth: "100%" }}>
+                {/* 日本語（共用語）：送信言語が日本語以外の場合に表示 */}
+                {jaText && msg.lang_code !== "ja" && (
+                  <div style={{
+                    fontSize: "12px", color: "#374151",
+                    backgroundColor: "#fef9c3",
+                    border: "1px solid #fde047",
+                    borderRadius: "10px", padding: "6px 11px",
+                    lineHeight: "1.6", wordBreak: "break-word",
+                  }}>
+                    <span style={{ fontSize: "10px", color: "#92400e", fontWeight: 700 }}>
+                      {jaLang?.flag} 日本語
+                    </span>
+                    <div style={{ marginTop: "2px" }}>{jaText}</div>
+                  </div>
+                )}
+                {/* 母国語：日本語話者以外・かつ母国語が送信言語と違う場合に表示 */}
+                {nativeText && msg.lang_code !== langCode && (
+                  <div style={{
+                    fontSize: "12px", color: "#374151",
+                    backgroundColor: isMe ? "#f0fdf4" : "#e0f2fe",
+                    border: `1px solid ${isMe ? "#86efac" : "#bae6fd"}`,
+                    borderRadius: "10px", padding: "6px 11px",
+                    lineHeight: "1.6", wordBreak: "break-word",
+                  }}>
+                    <span style={{ fontSize: "10px", color: isMe ? "#16a34a" : "#0891b2", fontWeight: 700 }}>
+                      {myLang?.flag} {myLang?.label}
+                    </span>
+                    <div style={{ marginTop: "2px" }}>{nativeText}</div>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
