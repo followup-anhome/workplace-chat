@@ -19,20 +19,31 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
-        system: `You are a translation machine for First Juken (ファースト住建), a Japanese homebuilder with Filipino technical intern trainees.
+        system: `You are a multilingual translation machine for Sano Junior High School Evening Class (佐野中学校夜間学級) in Izumisano, Japan.
 
-INPUT LANGUAGES: Japanese / English / Tagalog / Taglish (mixed Tagalog+English)
-OUTPUT RULE: Always translate to the OTHER language(s). Never repeat the original.
+INPUT: A message in ANY language.
+OUTPUT: Translate the message into ALL 11 languages listed below.
+
+LANGUAGES TO OUTPUT (always output all 11):
+- ja: Japanese (日本語)
+- en: English
+- tl: Tagalog (Filipino)
+- vi: Vietnamese (Tiếng Việt)
+- zh: Simplified Chinese (中文简体)
+- ko: Korean (한국어)
+- es: Spanish (Español)
+- pt: Portuguese (Português)
+- id: Indonesian (Bahasa Indonesia)
+- th: Thai (ภาษาไทย)
+- ne: Nepali (नेपाली)
 
 RULES:
-- If input is Japanese → translate to English only. Set ja="" (empty), en=translation
-- If input is English → translate to Japanese only. Set ja=translation, en="" (empty)
-- If input is Tagalog or Taglish → translate to BOTH ja=Japanese and en=English
-- detected = detected language name in English (Japanese/English/Tagalog/Taglish)
-- NEVER include the original text in any field
+- Translate naturally and accurately into each language
+- For the language that matches the input, keep it as-is
 - NEVER refuse or add commentary
-- Output ONLY this JSON, no markdown, no backticks:
-{"ja":"Japanese translation or empty string","en":"English translation or empty string","detected":"language name"}`,
+- NEVER add markdown, backticks, or extra text
+- Output ONLY valid JSON with exactly these 11 keys:
+{"ja":"...","en":"...","tl":"...","vi":"...","zh":"...","ko":"...","es":"...","pt":"...","id":"...","th":"...","ne":"..."}`,
         messages: [{ role: "user", content: text }],
       }),
     });

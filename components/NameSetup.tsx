@@ -2,17 +2,17 @@
 import { useState } from "react";
 
 export const LANGUAGES = [
-  { code: "ja", label: "日本語",          flag: "🇯🇵", name: "日本" },
-  { code: "tl", label: "Tagalog",         flag: "🇵🇭", name: "Philippines" },
-  { code: "vi", label: "Viet Nam",      flag: "🇻🇳", name: "Việt Nam" },
-  { code: "ne", label: "Nepali",           flag: "🇳🇵", name: "Nepal" },
-  { code: "zh", label: "中文",             flag: "🇨🇳", name: "中国" },
-  { code: "hi", label: "Hindi",            flag: "🇮🇳", name: "India" },
-  { code: "ur", label: "Urdu",             flag: "🇵🇰", name: "Pakistan" },
-  { code: "de", label: "Deutsch",         flag: "🇩🇪", name: "Deutschland" },
-  { code: "id", label: "Indonesia",       flag: "🇮🇩", name: "Indonesia" },
-  { code: "my", label: "Myanmar",            flag: "🇲🇲", name: "Myanmar" },
-  { code: "en", label: "English",         flag: "🇺🇸", name: "English" },
+  { code: "ja", label: "日本語",     flag: "🇯🇵", name: "日本" },
+  { code: "en", label: "English",    flag: "🇺🇸", name: "English" },
+  { code: "tl", label: "Tagalog",    flag: "🇵🇭", name: "Philippines" },
+  { code: "vi", label: "Tiếng Việt", flag: "🇻🇳", name: "Việt Nam" },
+  { code: "zh", label: "中文",       flag: "🇨🇳", name: "中国" },
+  { code: "ko", label: "한국어",     flag: "🇰🇷", name: "Korea" },
+  { code: "es", label: "Español",    flag: "🇪🇸", name: "España" },
+  { code: "pt", label: "Português",  flag: "🇧🇷", name: "Brasil" },
+  { code: "id", label: "Indonesia",  flag: "🇮🇩", name: "Indonesia" },
+  { code: "th", label: "ภาษาไทย",   flag: "🇹🇭", name: "Thailand" },
+  { code: "ne", label: "नेपाली",    flag: "🇳🇵", name: "Nepal" },
 ];
 
 export default function NameSetup({ onDone }: {
@@ -99,8 +99,9 @@ export default function NameSetup({ onDone }: {
                 <img
                   src={`https://flagcdn.com/24x18/${
                     l.code==="ja"?"jp":l.code==="tl"?"ph":l.code==="vi"?"vn":
-                    l.code==="ne"?"np":l.code==="zh"?"cn":l.code==="hi"?"in":
-                    l.code==="ur"?"pk":l.code==="my"?"mm":l.code==="en"?"us":l.code
+                    l.code==="zh"?"cn":l.code==="ko"?"kr":l.code==="es"?"es":
+                    l.code==="pt"?"br":l.code==="id"?"id":l.code==="th"?"th":
+                    l.code==="ne"?"np":l.code==="en"?"us":l.code
                   }.png`}
                   alt={l.name}
                   style={{ width: "28px", height: "21px", borderRadius: "2px", objectFit: "cover" }}
