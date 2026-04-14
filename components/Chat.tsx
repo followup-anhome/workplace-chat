@@ -13,12 +13,31 @@ type Message = {
   original: string; translation: string; created_at: string;
 };
 
+function translationBubbleText(msg: Message, viewerLang: string, isMe: boolean): string {
+  let t: Record<string, string>;
+  try {
+    t = JSON.parse(msg.translation);
+  } catch {
+    return "";
+  }
+  const v = (k: string) => (t[k] ?? "").trim();
+  const sameLang = msg.lang_code === viewerLang;
+  if (sameLang && !isMe) return "";
+  if (sameLang && isMe) {
+    if (viewerLang === "ja") return v("en");
+    if (viewerLang === "en") return v("ja");
+    return v("en") || v("ja");
+  }
+  return v(viewerLang) || v("en") || v("ja");
+}
+
 export default function Chat({ name, langCode, room, onBack }: {
   name: string; langCode: string; room: string; onBack: () => void;
 }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput]       = useState("");
   const [sending, setSending]   = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [online, setOnline]     = useState(0);
   const bottomRef   = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -50,25 +69,48 @@ export default function Chat({ name, langCode, room, onBack }: {
   const send = async () => {
     const text = input.trim();
     if (!text || sending) return;
+    setSendError(null);
     setInput(""); setSending(true);
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     try {
       const res = await fetch("/api/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
-      const data = await res.json();
-      await supabase.from("messages").insert({ room, sender: name, lang_code: langCode, role: "en", original: text, translation: data.translations ? JSON.stringify(data.translations) : "{}" });
-    } catch (e) { console.error(e); }
+      const data = await res.json() as { translations?: unknown; error?: string };
+      if (!res.ok) {
+        setSendError(
+          typeof data.error === "string" ? data.error : "翻訳APIエラー (" + res.status + ")"
+        );
+        setInput(text);
+        setSending(false);
+        return;
+      }
+      if (!data.translations || typeof data.translations !== "object") {
+        setSendError("翻訳結果を取得できませんでした");
+        setInput(text);
+        setSending(false);
+        return;
+      }
+      const payload = JSON.stringify(data.translations);
+      const { error: insErr } = await supabase.from("messages").insert({
+        room,
+        sender: name,
+        lang_code: langCode,
+        role: "en",
+        original: text,
+        translation: payload,
+      });
+      if (insErr) {
+        setSendError(insErr.message || "メッセージの保存に失敗しました");
+        setInput(text);
+      }
+    } catch (e) {
+      console.error(e);
+      setSendError("送信に失敗しました");
+      setInput(text);
+    }
     setSending(false);
   };
 
   const handleKey = (e: React.KeyboardEvent) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
-
-  const getMyTranslation = (msg: Message) => {
-    try {
-      const t = JSON.parse(msg.translation);
-      if (msg.lang_code === langCode) return "";
-      return t[langCode] || t["en"] || "";
-    } catch { return ""; }
-  };
 
   const getSenderInfo = (msg: Message) => {
     const l = LANGUAGES.find(l => l.code === msg.lang_code);
@@ -107,7 +149,7 @@ export default function Chat({ name, langCode, room, onBack }: {
         )}
         {messages.map(msg => {
           const isMe = msg.sender === name;
-          const myTranslation = getMyTranslation(msg);
+          const tline = translationBubbleText(msg, langCode, isMe);
           const { flag, label } = getSenderInfo(msg);
           return (
             <div key={msg.id} style={{ display: "flex", flexDirection: "column", gap: "3px", maxWidth: "85%", alignSelf: isMe ? "flex-end" : "flex-start", alignItems: isMe ? "flex-end" : "flex-start" }}>
@@ -123,10 +165,12 @@ export default function Chat({ name, langCode, room, onBack }: {
                   <button onClick={() => deleteMessage(msg.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "13px", color: "#d1d5db", padding: "2px", flexShrink: 0, marginTop: "6px" }}>🗑️</button>
                 )}
               </div>
-              {!isMe && myTranslation && (
-                <div style={{ fontSize: "12px", color: "#374151", backgroundColor: "#dbeafe", border: "1px solid #bfdbfe", borderRadius: "10px", padding: "6px 11px", lineHeight: "1.6", wordBreak: "break-word", maxWidth: "100%" }}>
-                  <span style={{ fontSize: "10px", color: brand.accent, fontWeight: 700 }}>{myLang?.flag} {myLang?.label}</span>
-                  <div style={{ marginTop: "2px" }}>{myTranslation}</div>
+              {tline && (
+                <div style={{ fontSize: "12px", color: "#374151", backgroundColor: "#dbeafe", border: "1px solid #bfdbfe", borderRadius: "10px", padding: "6px 11px", lineHeight: "1.6", wordBreak: "break-word", maxWidth: "100%", alignSelf: isMe ? "flex-end" : "flex-start" }}>
+                  <span style={{ fontSize: "10px", color: brand.accent, fontWeight: 700 }}>
+                    {isMe ? "\u{1F310} \u4ed6\u8a00\u8a9e\u5411\u3051\uff08\u30d7\u30ec\u30d3\u30e5\u30fc\uff09" : `${myLang?.flag} ${myLang?.label}`}
+                  </span>
+                  <div style={{ marginTop: "2px" }}>{tline}</div>
                 </div>
               )}
             </div>
@@ -137,6 +181,9 @@ export default function Chat({ name, langCode, room, onBack }: {
 
       {/* Input */}
       <div style={{ backgroundColor: "white", borderTop: "1px solid #e5e7eb", padding: "10px 14px", flexShrink: 0 }}>
+        {sendError && (
+          <p style={{ fontSize: "11px", color: "#b91c1c", marginBottom: "8px", lineHeight: 1.45 }}>{sendError}</p>
+        )}
         <div style={{ display: "flex", gap: "8px", alignItems: "flex-end" }}>
           <div style={{ position: "relative", flex: 1 }}>
             <div style={{ position: "absolute", top: "10px", left: "12px", fontSize: "14px", pointerEvents: "none" }}>{myLang?.flag}</div>
