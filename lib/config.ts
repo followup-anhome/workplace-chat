@@ -16,8 +16,8 @@ const raw = process.env.NEXT_PUBLIC_MODE as AppMode | undefined;
 export const MODE: AppMode = raw ?? "full";
 
 export const BRAND = {
-  full:     { title: "Workplace Chat",                       subtitle: "フォローアップ株式会社",                          headerBg: "linear-gradient(160deg,#0f2d5c,#1d4ed8,#0f2d5c)", accent: "#1d4ed8", dark: "#0f2d5c" },
-  demo:     { title: "Workplace Chat",                       subtitle: "フォローアップ株式会社",                          headerBg: "linear-gradient(160deg,#0f2d5c,#1d4ed8,#0f2d5c)", accent: "#1d4ed8", dark: "#0f2d5c" },
+  full:     { title: "sano-school",                          subtitle: "sano-school",                                     headerBg: "linear-gradient(160deg,#0f2d5c,#1d4ed8,#0f2d5c)", accent: "#1d4ed8", dark: "#0f2d5c" },
+  demo:     { title: "sano-school",                          subtitle: "sano-school",                                     headerBg: "linear-gradient(160deg,#0f2d5c,#1d4ed8,#0f2d5c)", accent: "#1d4ed8", dark: "#0f2d5c" },
   school:   { title: "🏫 泉佐野市立佐野中学校　夜間学級",  subtitle: "AI翻訳チャット　by フォローアップ株式会社",         headerBg: "linear-gradient(160deg,#0c3547,#1a6b8a,#0c3547)", accent: "#1a6b8a", dark: "#0c3547" },
   uno:      { title: "UNO Overseas Placement",               subtitle: "AI Translation Chat",                             headerBg: "linear-gradient(160deg,#1e3a5f,#2563eb,#1e3a5f)", accent: "#2563eb", dark: "#1e3a5f" },
   followup: { title: "Follow Up Team Chat",                  subtitle: "フォローアップ株式会社",                          headerBg: "linear-gradient(160deg,#1a3a5c,#1d4ed8,#1a3a5c)", accent: "#1d4ed8", dark: "#1a3a5c" },
