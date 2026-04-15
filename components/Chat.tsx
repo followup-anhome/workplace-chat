@@ -9,19 +9,19 @@ const supabase = createClient(
 );
 
 type Message = {
-  id: string; sender: string; lang_code: string;
-  original: string; translation: string; created_at: string;
+  id: string; sender_name: string; sender_lang: string;
+  original_text: string; translations: Record<string, string> | string; created_at: string;
 };
 
 function translationBubbleText(msg: Message, viewerLang: string, isMe: boolean): string {
   let t: Record<string, string>;
   try {
-    t = JSON.parse(msg.translation);
+    t = typeof msg.translations === "string" ? JSON.parse(msg.translations) : msg.translations;
   } catch {
     return "";
   }
   const v = (k: string) => (t[k] ?? "").trim();
-  const sameLang = msg.lang_code === viewerLang;
+  const sameLang = msg.sender_lang === viewerLang;
   if (sameLang && !isMe) return "";
   if (sameLang && isMe) {
     if (viewerLang === "ja") return v("en");
@@ -49,14 +49,14 @@ export default function Chat({ name, langCode, room, onBack }: {
   const roomLabel = allRooms.find(r => r.id === room)?.label || `🏷️ ${room}`;
 
   useEffect(() => {
-    supabase.from("messages").select("*").eq("room", room)
+    supabase.from("messages").select("*")
       .order("created_at", { ascending: true }).limit(60)
       .then(({ data }) => { if (data) setMessages(data as Message[]); });
 
     const channel = supabase.channel(`room:${room}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `room=eq.${room}` },
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" },
         p => setMessages(prev => prev.find(m => m.id === p.new.id) ? prev : [...prev, p.new as Message]))
-      .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: `room=eq.${room}` },
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages" },
         p => setMessages(prev => prev.filter(m => m.id !== p.old.id)))
       .on("presence", { event: "sync" }, () => setOnline(Object.keys(channel.presenceState()).length))
       .subscribe(async s => { if (s === "SUBSCRIBED") await channel.track({ name, langCode }); });
@@ -89,14 +89,11 @@ export default function Chat({ name, langCode, room, onBack }: {
         setSending(false);
         return;
       }
-      const payload = JSON.stringify(data.translations);
       const { error: insErr } = await supabase.from("messages").insert({
-        room,
-        sender: name,
-        lang_code: langCode,
-        role: "en",
-        original: text,
-        translation: payload,
+        sender_name: name,
+        sender_lang: langCode,
+        original_text: text,
+        translations: data.translations,
       });
       if (insErr) {
         setSendError(insErr.message || "メッセージの保存に失敗しました");
@@ -113,7 +110,7 @@ export default function Chat({ name, langCode, room, onBack }: {
   const handleKey = (e: React.KeyboardEvent) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
 
   const getSenderInfo = (msg: Message) => {
-    const l = LANGUAGES.find(l => l.code === msg.lang_code);
+    const l = LANGUAGES.find(l => l.code === msg.sender_lang);
     return { flag: l?.flag || "💬", label: l?.label || "" };
   };
 
@@ -148,18 +145,18 @@ export default function Chat({ name, langCode, room, onBack }: {
           </div>
         )}
         {messages.map(msg => {
-          const isMe = msg.sender === name;
+          const isMe = msg.sender_name === name;
           const tline = translationBubbleText(msg, langCode, isMe);
           const { flag, label } = getSenderInfo(msg);
           return (
             <div key={msg.id} style={{ display: "flex", flexDirection: "column", gap: "3px", maxWidth: "85%", alignSelf: isMe ? "flex-end" : "flex-start", alignItems: isMe ? "flex-end" : "flex-start" }}>
               <span style={{ fontSize: "10px", color: "#9ca3af", padding: "0 4px" }}>
-                {flag} {msg.sender}
+                {flag} {msg.sender_name}
                 {!isMe && <span style={{ fontSize: "9px", color: "#bfdbfe", marginLeft: "4px" }}>({label})</span>}
               </span>
               <div style={{ display: "flex", alignItems: "flex-start", gap: "5px", flexDirection: isMe ? "row-reverse" : "row" }}>
                 <div style={{ padding: "9px 13px", borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px", fontSize: "14px", lineHeight: "1.55", wordBreak: "break-word", background: isMe ? `linear-gradient(135deg, ${brand.accent}, ${brand.dark})` : "white", color: isMe ? "white" : "#111827", border: isMe ? "none" : "1px solid #e5e7eb" }}>
-                  {msg.original}
+                  {msg.original_text}
                 </div>
                 {isMe && features.deleteMessage && (
                   <button onClick={() => deleteMessage(msg.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "13px", color: "#d1d5db", padding: "2px", flexShrink: 0, marginTop: "6px" }}>🗑️</button>
@@ -204,4 +201,6 @@ export default function Chat({ name, langCode, room, onBack }: {
       </div>
     </div>
   );
+}
+
 }
