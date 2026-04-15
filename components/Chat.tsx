@@ -47,20 +47,31 @@ export default function Chat({ name, langCode, room, onBack }: {
   const allRooms = ROOMS[MODE] as { id: string; label: string; icon: string }[];
   const roomLabel = allRooms.find(r => r.id === room)?.label || `🏷️ ${room}`;
 
-  useEffect(() => {
-    supabase.from("messages").select("*").eq("room", room)
-      .order("created_at", { ascending: true }).limit(60)
-      .then(({ data }) => { if (data) setMessages(data as Message[]); });
+  const fetchMessages = async () => {
+    const { data } = await supabase.from("messages").select("*").eq("room", room)
+      .order("created_at", { ascending: true }).limit(60);
+    if (data) setMessages(data as Message[]);
+  };
 
+  useEffect(() => {
+    fetchMessages();
+
+    // Realtime
     const channel = supabase.channel(`room:${room}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `room=eq.${room}` },
-        p => setMessages(prev => prev.find(m => m.id === p.new.id) ? prev : [...prev, p.new as Message]))
+        () => fetchMessages())
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: `room=eq.${room}` },
-        p => setMessages(prev => prev.filter(m => m.id !== p.old.id)))
+        () => fetchMessages())
       .on("presence", { event: "sync" }, () => setOnline(Object.keys(channel.presenceState()).length))
       .subscribe(async s => { if (s === "SUBSCRIBED") await channel.track({ name, langCode }); });
 
-    return () => { supabase.removeChannel(channel); };
+    // フォールバック：3秒ポーリング
+    const timer = setInterval(fetchMessages, 3000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(timer);
+    };
   }, [room, name, langCode]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
