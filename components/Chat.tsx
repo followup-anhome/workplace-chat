@@ -13,21 +13,29 @@ type Message = {
   original_text: string; translations: Record<string, string> | string; created_at: string;
 };
 
-// 表示するテキストを返す
-// 自分のメッセージ → 原文をそのまま表示
-// 他人のメッセージ → 自分の母国語に翻訳したものを表示
-function getDisplayText(msg: Message, viewerLang: string, isMe: boolean): string {
+// 表示テキストを返す
+// 自分のメッセージ → 原文のみ
+// 他人のメッセージ → { main: 母国語訳, sub: 日本語訳 } (日本語ユーザーは母国語訳のみ)
+function getDisplayText(msg: Message, viewerLang: string, isMe: boolean): { main: string; sub: string } {
   if (isMe) {
-    return msg.original_text;
+    return { main: msg.original_text, sub: "" };
   }
   let t: Record<string, string>;
   try {
     t = typeof msg.translations === "string" ? JSON.parse(msg.translations) : msg.translations;
   } catch {
-    return msg.original_text;
+    return { main: msg.original_text, sub: "" };
   }
   const v = (k: string) => (t[k] ?? "").trim();
-  return v(viewerLang) || v("en") || v("ja") || msg.original_text;
+
+  if (viewerLang === "ja") {
+    // 日本語ユーザー：日本語訳のみ表示
+    return { main: v("ja") || msg.original_text, sub: "" };
+  }
+  // 外国語ユーザー：母国語訳＋日本語訳の2行
+  const native = v(viewerLang) || msg.original_text;
+  const japanese = v("ja") || "";
+  return { main: native, sub: japanese };
 }
 
 export default function Chat({ name, langCode, room, onBack }: {
@@ -157,7 +165,7 @@ export default function Chat({ name, langCode, room, onBack }: {
         )}
         {messages.map(msg => {
           const isMe = msg.sender_name === name;
-          const displayText = getDisplayText(msg, langCode, isMe);
+          const { main: displayMain, sub: displaySub } = getDisplayText(msg, langCode, isMe);
           const { flag, label } = getSenderInfo(msg);
           return (
             <div key={msg.id} style={{ display: "flex", flexDirection: "column", gap: "3px", maxWidth: "85%", alignSelf: isMe ? "flex-end" : "flex-start", alignItems: isMe ? "flex-end" : "flex-start" }}>
@@ -167,7 +175,12 @@ export default function Chat({ name, langCode, room, onBack }: {
               </span>
               <div style={{ display: "flex", alignItems: "flex-start", gap: "5px", flexDirection: isMe ? "row-reverse" : "row" }}>
                 <div style={{ padding: "9px 13px", borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px", fontSize: "14px", lineHeight: "1.55", wordBreak: "break-word", background: isMe ? `linear-gradient(135deg, ${brand.accent}, ${brand.dark})` : "white", color: isMe ? "white" : "#111827", border: isMe ? "none" : "1px solid #e5e7eb" }}>
-                  {displayText}
+                  <div>{displayMain}</div>
+                  {displaySub && (
+                    <div style={{ fontSize: "12px", color: isMe ? "rgba(255,255,255,0.75)" : "#6b7280", marginTop: "4px", borderTop: isMe ? "1px solid rgba(255,255,255,0.2)" : "1px solid #e5e7eb", paddingTop: "4px" }}>
+                      🇯🇵 {displaySub}
+                    </div>
+                  )}
                 </div>
                 {isMe && features.deleteMessage && (
                   <button onClick={() => deleteMessage(msg.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "13px", color: "#d1d5db", padding: "2px", flexShrink: 0, marginTop: "6px" }}>🗑️</button>
@@ -205,4 +218,3 @@ export default function Chat({ name, langCode, room, onBack }: {
     </div>
   );
 }
-
