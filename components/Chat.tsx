@@ -13,22 +13,21 @@ type Message = {
   original_text: string; translations: Record<string, string> | string; created_at: string;
 };
 
-function translationBubbleText(msg: Message, viewerLang: string, isMe: boolean): string {
+// 表示するテキストを返す
+// 自分のメッセージ → 原文をそのまま表示
+// 他人のメッセージ → 自分の母国語に翻訳したものを表示
+function getDisplayText(msg: Message, viewerLang: string, isMe: boolean): string {
+  if (isMe) {
+    return msg.original_text;
+  }
   let t: Record<string, string>;
   try {
     t = typeof msg.translations === "string" ? JSON.parse(msg.translations) : msg.translations;
   } catch {
-    return "";
+    return msg.original_text;
   }
   const v = (k: string) => (t[k] ?? "").trim();
-  const sameLang = msg.sender_lang === viewerLang;
-  if (sameLang && !isMe) return "";
-  if (sameLang && isMe) {
-    if (viewerLang === "ja") return v("en");
-    if (viewerLang === "en") return v("ja");
-    return v("en") || v("ja");
-  }
-  return v(viewerLang) || v("en") || v("ja");
+  return v(viewerLang) || v("en") || v("ja") || msg.original_text;
 }
 
 export default function Chat({ name, langCode, room, onBack }: {
@@ -146,30 +145,22 @@ export default function Chat({ name, langCode, room, onBack }: {
         )}
         {messages.map(msg => {
           const isMe = msg.sender_name === name;
-          const tline = translationBubbleText(msg, langCode, isMe);
+          const displayText = getDisplayText(msg, langCode, isMe);
           const { flag, label } = getSenderInfo(msg);
           return (
             <div key={msg.id} style={{ display: "flex", flexDirection: "column", gap: "3px", maxWidth: "85%", alignSelf: isMe ? "flex-end" : "flex-start", alignItems: isMe ? "flex-end" : "flex-start" }}>
               <span style={{ fontSize: "10px", color: "#9ca3af", padding: "0 4px" }}>
                 {flag} {msg.sender_name}
-                {!isMe && <span style={{ fontSize: "9px", color: "#bfdbfe", marginLeft: "4px" }}>({label})</span>}
+                {!isMe && <span style={{ fontSize: "9px", color: "#9ca3af", marginLeft: "4px" }}>({label})</span>}
               </span>
               <div style={{ display: "flex", alignItems: "flex-start", gap: "5px", flexDirection: isMe ? "row-reverse" : "row" }}>
                 <div style={{ padding: "9px 13px", borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px", fontSize: "14px", lineHeight: "1.55", wordBreak: "break-word", background: isMe ? `linear-gradient(135deg, ${brand.accent}, ${brand.dark})` : "white", color: isMe ? "white" : "#111827", border: isMe ? "none" : "1px solid #e5e7eb" }}>
-                  {msg.original_text}
+                  {displayText}
                 </div>
                 {isMe && features.deleteMessage && (
                   <button onClick={() => deleteMessage(msg.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "13px", color: "#d1d5db", padding: "2px", flexShrink: 0, marginTop: "6px" }}>🗑️</button>
                 )}
               </div>
-              {tline && (
-                <div style={{ fontSize: "12px", color: "#374151", backgroundColor: "#dbeafe", border: "1px solid #bfdbfe", borderRadius: "10px", padding: "6px 11px", lineHeight: "1.6", wordBreak: "break-word", maxWidth: "100%", alignSelf: isMe ? "flex-end" : "flex-start" }}>
-                  <span style={{ fontSize: "10px", color: brand.accent, fontWeight: 700 }}>
-                    {isMe ? "\u{1F310} \u4ed6\u8a00\u8a9e\u5411\u3051\uff08\u30d7\u30ec\u30d3\u30e5\u30fc\uff09" : `${myLang?.flag} ${myLang?.label}`}
-                  </span>
-                  <div style={{ marginTop: "2px" }}>{tline}</div>
-                </div>
-              )}
             </div>
           );
         })}
