@@ -10,7 +10,7 @@
  *   followup→ フォローアップ社内用
  */
 
-export type AppMode = "full" | "demo" | "school" | "uno" | "followup";
+export type AppMode = "full" | "demo" | "school" | "uno" | "followup" | "first";
 
 const raw = process.env.NEXT_PUBLIC_MODE as AppMode | undefined;
 export const MODE: AppMode = raw ?? "full";
@@ -21,6 +21,7 @@ export const BRAND = {
   school:   { title: "🏫 泉佐野市立佐野中学校　夜間学級",  subtitle: "AI翻訳チャット　by フォローアップ株式会社",         headerBg: "linear-gradient(160deg,#0c3547,#1a6b8a,#0c3547)", accent: "#1a6b8a", dark: "#0c3547" },
   uno:      { title: "UNO Overseas Placement",               subtitle: "AI Translation Chat",                             headerBg: "linear-gradient(160deg,#1e3a5f,#2563eb,#1e3a5f)", accent: "#2563eb", dark: "#1e3a5f" },
   followup: { title: "Follow Up Team Chat",                  subtitle: "フォローアップ株式会社",                          headerBg: "linear-gradient(160deg,#1a3a5c,#1d4ed8,#1a3a5c)", accent: "#1d4ed8", dark: "#1a3a5c" },
+  first:    { title: "ファースト住建　現場チャット",             subtitle: "AI翻訳チャット　by フォローアップ株式会社",         headerBg: "linear-gradient(160deg,#7c1a1a,#c0392b,#7c1a1a)", accent: "#c0392b", dark: "#7c1a1a" },
 };
 
 export const ALL_LANGUAGES = [
@@ -43,6 +44,7 @@ const LANG_CODES: Record<AppMode, string[]> = {
   school:   ["ja","tl","vi","ne","zh","hi","ur","de","id","my","en"],
   uno:      ["ja","tl","en"],
   followup: ["ja","tl","en"],
+  first:    ["ja","tl","vi"],
 };
 export const LANGUAGES = ALL_LANGUAGES.filter(l => LANG_CODES[MODE].includes(l.code));
 
@@ -89,6 +91,13 @@ export const ROOMS: Record<AppMode, { id: string; label: string; icon: string; b
     { id: "shimizu-arch",  label: "Architecture / Shimizu",   icon: "🏗️" },
     { id: "walkin",        label: "Walk in Home サポート",     icon: "💻", badge: "CAD" },
   ],
+  first: [
+    { id: "genba-all",  label: "全体 / General",             icon: "💬", badge: "MAIN" },
+    { id: "genba-a",    label: "現場A / Site A",             icon: "🏗️" },
+    { id: "genba-b",    label: "現場B / Site B",             icon: "🏠" },
+    { id: "souko",      label: "倉庫 / Warehouse",            icon: "📦" },
+    { id: "jimu",       label: "事務所 / Office",             icon: "🏢" },
+  ],
 };
 
 export const FEATURES: Record<AppMode, Record<string, boolean>> = {
@@ -97,6 +106,7 @@ export const FEATURES: Record<AppMode, Record<string, boolean>> = {
   school:   { walkinSupport: false, deleteMessage: true,  customRoom: true,  onlineCount: true },
   uno:      { walkinSupport: false, deleteMessage: true,  customRoom: false, onlineCount: true },
   followup: { walkinSupport: true,  deleteMessage: true,  customRoom: false, onlineCount: true },
+  first:    { walkinSupport: false, deleteMessage: true,  customRoom: false, onlineCount: true },
 };
 
 export const FOOTER_TEXT: Record<AppMode, string> = {
@@ -105,4 +115,5 @@ export const FOOTER_TEXT: Record<AppMode, string> = {
   school:   "🏫 佐野中学校 夜間学級 · 11言語 AI翻訳 · by フォローアップ株式会社",
   uno:      "AI Translation · UNO × Follow Up Co., Ltd.",
   followup: "🇯🇵 🇺🇸 🇵🇭 Follow Up Team · Powered by Claude AI",
+  first:    "🇯🇵 🇵🇭 🇻🇳 ファースト住建 · 3言語 AI翻訳 · by フォローアップ株式会社",
 };

@@ -1,14 +1,8 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-import { ALL_LANGUAGES } from "@/lib/config";
 
 const MODEL =
-  process.env.ANTHROPIC_MODEL?.trim() || "claude-3-5-haiku-20241022";
-
-function translationJsonShape(): string {
-  const keys = ALL_LANGUAGES.map((l) => `"${l.code}":""`).join(",");
-  return `{${keys},"detected":""}`;
-}
+  process.env.ANTHROPIC_MODEL?.trim() || "claude-haiku-4-5-20251001";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,9 +14,6 @@ export async function POST(req: NextRequest) {
     if (!apiKey)
       return NextResponse.json({ error: "API key not configured" }, { status: 500 });
 
-    const shapeExample = translationJsonShape();
-    const langLine = ALL_LANGUAGES.map((l) => `${l.code}=${l.label}`).join(", ");
-
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -32,19 +23,18 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 4096,
-        system: `You translate multilingual workplace / school chat messages.
+        max_tokens: 1024,
+        system: `You are a translation assistant for a Japanese construction company (ファースト住建).
+Translate between Japanese (ja), Filipino/Taglish (tl), and Vietnamese (vi).
 
-Supported language keys: ${langLine}
-
-Return ONLY valid JSON with exactly these keys (same order): ${ALL_LANGUAGES.map((l) => l.code).join(",")}, plus detected.
-Shape example (structure only): ${shapeExample}
+Return ONLY valid JSON with exactly these keys: ja, tl, vi, detected.
+Shape: {"ja":"...","tl":"...","vi":"...","detected":"..."}
 
 Rules:
-- "detected": the source language name in English (e.g. Japanese, English, Tagalog).
-- For the ONE key that matches the source language of the input, use "" (empty string).
-- Every other key must contain a natural translation of the input into that language.
-- Escape quotes inside strings properly. No markdown, no code fences, no commentary.`,
+- "detected": source language name in English (Japanese, Tagalog, Taglish, Vietnamese).
+- For the key matching the source language, use "" (empty string).
+- Every other key must contain a natural translation.
+- No markdown, no code fences, no commentary. JSON only.`,
         messages: [{ role: "user", content: text }],
       }),
     });
