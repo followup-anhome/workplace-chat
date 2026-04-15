@@ -46,7 +46,7 @@ export default function Chat({ name, langCode, room, onBack }: {
   const features = FEATURES[MODE];
   const myLang   = LANGUAGES.find(l => l.code === langCode);
   const allRooms = ROOMS[MODE] as { id: string; label: string; icon: string }[];
-  const roomLabel = allRooms.find(r => r.id === room)?.label || `🏷�E�E${room}`;
+  const roomLabel = allRooms.find(r => r.id === room)?.label || `🏷️ ${room}`;
 
   useEffect(() => {
     supabase.from("messages").select("*")
@@ -96,7 +96,7 @@ export default function Chat({ name, langCode, room, onBack }: {
         translations: data.translations,
       });
       if (insErr) {
-        setSendError(insErr.message || "メチE��ージの保存に失敗しました");
+        setSendError(insErr.message || "メッセージの保存に失敗しました");
         setInput(text);
       }
     } catch (e) {
@@ -124,12 +124,12 @@ export default function Chat({ name, langCode, room, onBack }: {
 
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, ${brand.dark}, ${brand.accent})`, padding: "11px 16px", display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
-        <button onClick={onBack} style={{ color: "white", fontSize: "20px", background: "none", border: "none", cursor: "pointer" }}>ↁE/button>
+        <button onClick={onBack} style={{ color: "white", fontSize: "20px", background: "none", border: "none", cursor: "pointer" }}>←</button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ color: "white", fontWeight: 700, fontSize: "13px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{roomLabel}</div>
           <div style={{ color: "#bfdbfe", fontSize: "10px" }}>
-            {myLang?.flag} {name}�E�EmyLang?.label}�E�E
-            {features.onlineCount && online > 0 && <span style={{ marginLeft: "7px", color: "#86efac" }}>◁E{online}人</span>}
+            {myLang?.flag} {name}（{myLang?.label}）
+            {features.onlineCount && online > 0 && <span style={{ marginLeft: "7px", color: "#86efac" }}>● {online}人</span>}
           </div>
         </div>
         <div style={{ fontSize: "9px", background: "rgba(255,255,255,0.12)", borderRadius: "7px", padding: "3px 8px", color: "#bfdbfe", whiteSpace: "nowrap" }}>{myLang?.flag} で表示中</div>
@@ -140,8 +140,8 @@ export default function Chat({ name, langCode, room, onBack }: {
         {messages.length === 0 && (
           <div style={{ textAlign: "center", color: "#9ca3af", fontSize: "12px", marginTop: "30px" }}>
             <div style={{ fontSize: "28px", marginBottom: "8px" }}>💬</div>
-            <p>あなた�E言語でメチE��ージを送れまぁE/p>
-            <p style={{ fontSize: "10px", marginTop: "4px", color: "#bfdbfe" }}>{myLang?.flag} {myLang?.label} で表示されまぁE/p>
+            <p>あなたの言語でメッセージを送れます</p>
+            <p style={{ fontSize: "10px", marginTop: "4px", color: "#bfdbfe" }}>{myLang?.flag} {myLang?.label} で表示されます</p>
           </div>
         )}
         {messages.map(msg => {
@@ -159,7 +159,7 @@ export default function Chat({ name, langCode, room, onBack }: {
                   {msg.original_text}
                 </div>
                 {isMe && features.deleteMessage && (
-                  <button onClick={() => deleteMessage(msg.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "13px", color: "#d1d5db", padding: "2px", flexShrink: 0, marginTop: "6px" }}>🗑�E�E/button>
+                  <button onClick={() => deleteMessage(msg.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "13px", color: "#d1d5db", padding: "2px", flexShrink: 0, marginTop: "6px" }}>🗑️</button>
                 )}
               </div>
               {tline && (
@@ -187,7 +187,7 @@ export default function Chat({ name, langCode, room, onBack }: {
             <textarea ref={textareaRef} value={input}
               onChange={e => { setInput(e.target.value); e.currentTarget.style.height = "auto"; e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight, 120) + "px"; }}
               onKeyDown={handleKey}
-              placeholder={`${myLang?.label}で入劁E/ Type in ${myLang?.label}`}
+              placeholder={`${myLang?.label}で入力 / Type in ${myLang?.label}`}
               rows={1}
               style={{ width: "100%", resize: "none", borderRadius: "20px", border: "2px solid #d1d5db", padding: "10px 16px 10px 34px", fontSize: "14px", color: "#111827", backgroundColor: "white", outline: "none", fontFamily: "inherit", boxSizing: "border-box", WebkitTextFillColor: "#111827" }}
             />
