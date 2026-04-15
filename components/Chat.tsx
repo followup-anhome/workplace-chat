@@ -48,14 +48,14 @@ export default function Chat({ name, langCode, room, onBack }: {
   const roomLabel = allRooms.find(r => r.id === room)?.label || `🏷️ ${room}`;
 
   useEffect(() => {
-    supabase.from("messages").select("*")
+    supabase.from("messages").select("*").eq("room", room)
       .order("created_at", { ascending: true }).limit(60)
       .then(({ data }) => { if (data) setMessages(data as Message[]); });
 
     const channel = supabase.channel(`room:${room}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" },
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `room=eq.${room}` },
         p => setMessages(prev => prev.find(m => m.id === p.new.id) ? prev : [...prev, p.new as Message]))
-      .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages" },
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: `room=eq.${room}` },
         p => setMessages(prev => prev.filter(m => m.id !== p.old.id)))
       .on("presence", { event: "sync" }, () => setOnline(Object.keys(channel.presenceState()).length))
       .subscribe(async s => { if (s === "SUBSCRIBED") await channel.track({ name, langCode }); });
@@ -89,6 +89,7 @@ export default function Chat({ name, langCode, room, onBack }: {
         return;
       }
       const { error: insErr } = await supabase.from("messages").insert({
+        room,
         sender_name: name,
         sender_lang: langCode,
         original_text: text,
@@ -193,3 +194,4 @@ export default function Chat({ name, langCode, room, onBack }: {
     </div>
   );
 }
+
