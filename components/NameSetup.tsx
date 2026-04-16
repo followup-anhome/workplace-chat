@@ -27,14 +27,15 @@ function FlagIcon({ code, size = 32 }: { code: string; size?: number }) {
 
 
 
-export default function NameSetup({ onDone }: {
-  onDone: (name: string, langCode: string) => void
+export default function NameSetup({ onDone, skipLang = false }: {
+  onDone: (name: string, langCode: string) => void;
+  skipLang?: boolean;
 }) {
   const [name, setName] = useState("");
   const [lang, setLang] = useState("");
   const [frame, setFrame] = useState(0);
   const brand = BRAND[MODE];
-  const canEnter = name.trim() && lang;
+  const canEnter = name.trim() && (skipLang || lang);
   const selected = LANGUAGES.find(l => l.code === lang);
 
   useEffect(() => {
@@ -94,39 +95,42 @@ export default function NameSetup({ onDone }: {
             ① あなたの名前 / Your name
           </div>
           <input type="text" value={name} onChange={e => setName(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && canEnter && onDone(name.trim(), lang)}
+            onKeyDown={e => e.key === "Enter" && canEnter && onDone(name.trim(), skipLang ? "ja" : lang)}
             placeholder="例: 田中 / Maria / Nguyen / Ram" autoFocus
             style={{ width: "100%", padding: "11px 14px", borderRadius: "10px", border: "2px solid #d1d5db", fontSize: "16px", color: "#111827", backgroundColor: "white", outline: "none", boxSizing: "border-box", WebkitTextFillColor: "#111827", fontFamily: "Helvetica, sans-serif" }}
           />
         </div>
 
-        {/* STEP 2 */}
-        <div style={{ marginBottom: "16px" }}>
-          <div style={{ fontSize: "9pt", fontWeight: 700, color: brand.dark, fontFamily: "Helvetica, sans-serif", marginBottom: "7px" }}>
-            ② あなたの言語を選んでください / Select your language
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
-            {LANGUAGES.map(l => (
-              <button key={l.code} onClick={() => setLang(l.code)}
-                style={{ padding: "12px 4px", borderRadius: "9px", cursor: "pointer", border: `2px solid ${lang === l.code ? brand.accent : "#e5e7eb"}`, background: lang === l.code ? brand.accent : "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px" }}>
-                {FLAG_SVG[l.code]
-                  ? <FlagIcon code={l.code} size={40} />
-                  : <span style={{ fontSize: "18pt" }}>{l.flag}</span>
-                }
-                <span style={{ fontSize: MODE === "first" ? "11pt" : "8pt", fontWeight: lang === l.code ? 700 : 600, color: lang === l.code ? "white" : brand.dark, fontFamily: "Helvetica, sans-serif", lineHeight: 1.2, textAlign: "center" }}>{l.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {selected && (
-          <div style={{ backgroundColor: "#eff6ff", borderRadius: "8px", padding: "7px 12px", marginBottom: "12px", border: `1px solid ${brand.accent}30`, textAlign: "center" }}>
-            <span style={{ fontSize: "15pt" }}>{selected.flag}</span>
-            <span style={{ fontSize: "9pt", color: brand.dark, fontWeight: 700, marginLeft: "6px", fontFamily: "Helvetica, sans-serif" }}>{selected.label} で表示します</span>
-          </div>
+        {/* STEP 2 - 言語選択（skipLang=trueの場合は非表示） */}
+        {!skipLang && (
+          <>
+            <div style={{ marginBottom: "16px" }}>
+              <div style={{ fontSize: "9pt", fontWeight: 700, color: brand.dark, fontFamily: "Helvetica, sans-serif", marginBottom: "7px" }}>
+                ② あなたの言語を選んでください / Select your language
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+                {LANGUAGES.map(l => (
+                  <button key={l.code} onClick={() => setLang(l.code)}
+                    style={{ padding: "12px 4px", borderRadius: "9px", cursor: "pointer", border: `2px solid ${lang === l.code ? brand.accent : "#e5e7eb"}`, background: lang === l.code ? brand.accent : "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px" }}>
+                    {FLAG_SVG[l.code]
+                      ? <FlagIcon code={l.code} size={40} />
+                      : <span style={{ fontSize: "18pt" }}>{l.flag}</span>
+                    }
+                    <span style={{ fontSize: MODE === "first" ? "11pt" : "8pt", fontWeight: lang === l.code ? 700 : 600, color: lang === l.code ? "white" : brand.dark, fontFamily: "Helvetica, sans-serif", lineHeight: 1.2, textAlign: "center" }}>{l.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {selected && (
+              <div style={{ backgroundColor: "#eff6ff", borderRadius: "8px", padding: "7px 12px", marginBottom: "12px", border: `1px solid ${brand.accent}30`, textAlign: "center" }}>
+                <span style={{ fontSize: "15pt" }}>{selected.flag}</span>
+                <span style={{ fontSize: "9pt", color: brand.dark, fontWeight: 700, marginLeft: "6px", fontFamily: "Helvetica, sans-serif" }}>{selected.label} で表示します</span>
+              </div>
+            )}
+          </>
         )}
 
-        <button onClick={() => canEnter && onDone(name.trim(), lang)} disabled={!canEnter}
+        <button onClick={() => canEnter && onDone(name.trim(), skipLang ? "ja" : lang)} disabled={!canEnter}
           style={{ width: "100%", padding: "13px", background: canEnter ? `linear-gradient(135deg, ${brand.accent}, ${brand.dark})` : "#d1d5db", color: "white", border: "none", borderRadius: "12px", fontSize: "15px", fontWeight: 700, cursor: canEnter ? "pointer" : "not-allowed", fontFamily: "Helvetica, sans-serif" }}>
           入室する / Enter →
         </button>
