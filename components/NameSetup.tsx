@@ -3,6 +3,22 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { BRAND, LANGUAGES, MODE } from "@/lib/config";
 
+// SVG国旗（Windows/Edge対応）
+const FLAG_SVG: Record<string, string> = {
+  ja: "https://flagcdn.com/w40/jp.png",
+  tl: "https://flagcdn.com/w40/ph.png",
+  vi: "https://flagcdn.com/w40/vn.png",
+};
+
+function FlagIcon({ code, size = 32 }: { code: string; size?: number }) {
+  if (FLAG_SVG[code]) {
+    return <img src={FLAG_SVG[code]} width={size} height={size * 0.67} style={{ borderRadius: "3px", objectFit: "cover" }} alt={code} />;
+  }
+  return null;
+}
+
+
+
 export default function NameSetup({ onDone }: {
   onDone: (name: string, langCode: string) => void
 }) {
@@ -84,9 +100,12 @@ export default function NameSetup({ onDone }: {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
             {LANGUAGES.map(l => (
               <button key={l.code} onClick={() => setLang(l.code)}
-                style={{ padding: "8px 4px", borderRadius: "9px", cursor: "pointer", border: `2px solid ${lang === l.code ? brand.accent : "#e5e7eb"}`, background: lang === l.code ? "#eff6ff" : "white", display: "flex", flexDirection: "column", alignItems: "center", gap: "3px" }}>
-                <span style={{ fontSize: "18pt" }}>{l.flag}</span>
-                <span style={{ fontSize: "8pt", fontWeight: lang === l.code ? 700 : 500, color: lang === l.code ? brand.dark : "#374151", fontFamily: "Helvetica, sans-serif", lineHeight: 1.2, textAlign: "center" }}>{l.label}</span>
+                style={{ padding: "12px 4px", borderRadius: "9px", cursor: "pointer", border: `2px solid ${lang === l.code ? brand.accent : "#e5e7eb"}`, background: lang === l.code ? brand.accent : "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px" }}>
+                {MODE === "first" && FLAG_SVG[l.code]
+                  ? <FlagIcon code={l.code} size={40} />
+                  : <span style={{ fontSize: "18pt" }}>{l.flag}</span>
+                }
+                <span style={{ fontSize: MODE === "first" ? "11pt" : "8pt", fontWeight: lang === l.code ? 700 : 600, color: lang === l.code ? "white" : brand.dark, fontFamily: "Helvetica, sans-serif", lineHeight: 1.2, textAlign: "center" }}>{l.label}</span>
               </button>
             ))}
           </div>
@@ -95,7 +114,7 @@ export default function NameSetup({ onDone }: {
         {selected && (
           <div style={{ backgroundColor: "#eff6ff", borderRadius: "8px", padding: "7px 12px", marginBottom: "12px", border: `1px solid ${brand.accent}30`, textAlign: "center" }}>
             <span style={{ fontSize: "15pt" }}>{selected.flag}</span>
-            <span style={{ fontSize: "9pt", color: brand.dark, fontWeight: 700, marginLeft: "6px", fontFamily: "Helvetica, sans-serif" }}>{selected.label}　で表示します</span>
+            <span style={{ fontSize: "9pt", color: brand.dark, fontWeight: 700, marginLeft: "6px", fontFamily: "Helvetica, sans-serif" }}>{selected.label} で表示します</span>
           </div>
         )}
 
