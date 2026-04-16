@@ -3,11 +3,19 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { BRAND, LANGUAGES, MODE } from "@/lib/config";
 
-// SVG国旗（Windows/Edge対応）
+// SVG国旗（Windows/Edge対応・全言語）
 const FLAG_SVG: Record<string, string> = {
   ja: "https://flagcdn.com/w40/jp.png",
   tl: "https://flagcdn.com/w40/ph.png",
   vi: "https://flagcdn.com/w40/vn.png",
+  ne: "https://flagcdn.com/w40/np.png",
+  zh: "https://flagcdn.com/w40/cn.png",
+  hi: "https://flagcdn.com/w40/in.png",
+  ur: "https://flagcdn.com/w40/pk.png",
+  de: "https://flagcdn.com/w40/de.png",
+  id: "https://flagcdn.com/w40/id.png",
+  my: "https://flagcdn.com/w40/mm.png",
+  en: "https://flagcdn.com/w40/us.png",
 };
 
 function FlagIcon({ code, size = 32 }: { code: string; size?: number }) {
@@ -101,7 +109,7 @@ export default function NameSetup({ onDone }: {
             {LANGUAGES.map(l => (
               <button key={l.code} onClick={() => setLang(l.code)}
                 style={{ padding: "12px 4px", borderRadius: "9px", cursor: "pointer", border: `2px solid ${lang === l.code ? brand.accent : "#e5e7eb"}`, background: lang === l.code ? brand.accent : "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px" }}>
-                {MODE === "first" && FLAG_SVG[l.code]
+                {FLAG_SVG[l.code]
                   ? <FlagIcon code={l.code} size={40} />
                   : <span style={{ fontSize: "18pt" }}>{l.flag}</span>
                 }
