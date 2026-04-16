@@ -92,11 +92,12 @@ export const ROOMS: Record<AppMode, { id: string; label: string; icon: string; b
     { id: "walkin",        label: "Walk in Home サポート",     icon: "💻", badge: "CAD" },
   ],
   first: [
-    { id: "genba-all",  label: "全体 / General",             icon: "💬", badge: "MAIN" },
-    { id: "genba-a",    label: "現場A / Site A",             icon: "🏗️" },
-    { id: "genba-b",    label: "現場B / Site B",             icon: "🏠" },
-    { id: "souko",      label: "倉庫 / Warehouse",            icon: "📦" },
-    { id: "jimu",       label: "事務所 / Office",             icon: "🏢" },
+    { id: "all",    label: "ALL",    icon: "💬", badge: "MAIN" },
+    { id: "team-a", label: "Team A", icon: "🏗️" },
+    { id: "team-b", label: "Team B", icon: "🏠" },
+    { id: "team-c", label: "Team C", icon: "🏭" },
+    { id: "team-d", label: "Team D", icon: "📦" },
+    { id: "team-e", label: "Team E", icon: "🔧" },
   ],
 };
 
