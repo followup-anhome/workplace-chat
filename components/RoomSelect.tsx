@@ -27,28 +27,33 @@ export default function RoomSelect({ name, langCode, onSelect }: {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px", marginBottom: "12px" }}>
-          {rooms.map(r => (
-            <button key={r.id} onClick={() => onSelect(r.id)}
-              style={{
-                display: "flex",
-                flexDirection: r.badge === "MAIN" || r.badge === "DEMO" ? "row" : "column",
-                alignItems: "center", justifyContent: "center",
-                padding: "10px 8px", borderRadius: "10px", gap: "5px",
-                border: `2px solid ${(r.badge === "MAIN" || r.badge === "DEMO") ? brand.accent : "#e5e7eb"}`,
-                background: (r.badge === "MAIN" || r.badge === "DEMO") ? `linear-gradient(135deg, ${brand.accent}, ${brand.dark})` : "white",
-                color: (r.badge === "MAIN" || r.badge === "DEMO") ? "white" : "#111827",
-                cursor: "pointer", fontFamily: "Helvetica, sans-serif",
-                position: "relative",
-                gridColumn: (r.badge === "MAIN" || r.badge === "DEMO") ? "1 / -1" : "auto",
-              }}>
-              <span style={{ fontSize: "16pt" }}>{r.icon}</span>
-              <span style={{ fontSize: "11px", fontWeight: 600, textAlign: "center", lineHeight: 1.3 }}>{r.label}</span>
-              {r.badge && (
-                <span style={{ position: "absolute", top: "5px", right: "8px", fontSize: "8px", background: r.badge === "人気" ? "#0891b2" : "#f59e0b", color: "white", padding: "1px 7px", borderRadius: "99px", fontWeight: 700 }}>{r.badge}</span>
-              )}
-            </button>
-          ))}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "12px" }}>
+          {rooms.map(r => {
+            const isMain = r.badge === "MAIN" || r.badge === "DEMO";
+            const isFirstMode = MODE === "first";
+            return (
+              <button key={r.id} onClick={() => onSelect(r.id)}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center", justifyContent: "center",
+                  padding: isFirstMode ? "18px 8px" : "10px 8px",
+                  borderRadius: "10px", gap: isFirstMode ? "0" : "5px",
+                  border: `2px solid ${isMain ? brand.accent : "#e5e7eb"}`,
+                  background: isMain ? `linear-gradient(135deg, ${brand.accent}, ${brand.dark})` : "white",
+                  color: isMain ? "white" : "#111827",
+                  cursor: "pointer", fontFamily: "Helvetica, sans-serif",
+                  position: "relative",
+                  gridColumn: isMain ? "1 / -1" : "auto",
+                }}>
+                {!isFirstMode && <span style={{ fontSize: "16pt", marginRight: "4px" }}>{r.icon}</span>}
+                <span style={{ fontSize: isFirstMode ? "20px" : "11px", fontWeight: 700, textAlign: "center", lineHeight: 1.3 }}>{r.label}</span>
+                {r.badge && (
+                  <span style={{ position: "absolute", top: "5px", right: "8px", fontSize: "8px", background: r.badge === "人気" ? "#0891b2" : "#f59e0b", color: "white", padding: "1px 7px", borderRadius: "99px", fontWeight: 700 }}>{r.badge}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {features.customRoom && (
