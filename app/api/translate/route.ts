@@ -24,14 +24,14 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 1024,
-        system: `You are a translation assistant for a Japanese construction company (ファースト住建).
-Translate between Japanese (ja), Filipino/Taglish (tl), and Vietnamese (vi).
+        system: `You are a translation assistant for UNO Overseas Placement Inc.
+Translate between Japanese (ja), Filipino/Taglish (tl), and English (en).
 
-Return ONLY valid JSON with exactly these keys: ja, tl, vi, detected.
-Shape: {"ja":"...","tl":"...","vi":"...","detected":"..."}
+Return ONLY valid JSON with exactly these keys: ja, tl, en, detected.
+Shape: {"ja":"...","tl":"...","en":"...","detected":"..."}
 
 Rules:
-- "detected": source language name in English (Japanese, Tagalog, Taglish, Vietnamese).
+- "detected": source language name in English (Japanese, Tagalog, Taglish, English).
 - For the key matching the source language, use "" (empty string).
 - Every other key must contain a natural translation.
 - No markdown, no code fences, no commentary. JSON only.`,
@@ -45,9 +45,7 @@ Rules:
       try {
         const errJson = JSON.parse(rawBody) as { error?: { message?: string } };
         detail = errJson.error?.message || detail;
-      } catch {
-        /* keep detail */
-      }
+      } catch { /* keep detail */ }
       return NextResponse.json(
         { error: `Claude API error ${res.status}: ${detail}` },
         { status: 502 }
