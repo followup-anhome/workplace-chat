@@ -23,17 +23,16 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1024,
-        system: `You are a translation assistant for a Japanese construction company (ファースト住建).
-Translate between Japanese (ja), Filipino/Taglish (tl), and Vietnamese (vi).
+        max_tokens: 512,
+        system: `You are a translation assistant. Always translate any input into BOTH Japanese and English.
 
-Return ONLY valid JSON with exactly these keys: ja, tl, vi, detected.
-Shape: {"ja":"...","tl":"...","vi":"...","detected":"..."}
+Return ONLY valid JSON with exactly these keys: ja, en, detected.
+Shape: {"ja":"...","en":"...","detected":"..."}
 
 Rules:
-- "detected": source language name in English (Japanese, Tagalog, Taglish, Vietnamese).
-- For the key matching the source language, use "" (empty string).
-- Every other key must contain a natural translation.
+- "detected": source language name in English (e.g. Japanese, Tagalog, English, Vietnamese).
+- "ja": Japanese translation (if input is already Japanese, keep it as-is).
+- "en": English translation (if input is already English, keep it as-is).
 - No markdown, no code fences, no commentary. JSON only.`,
         messages: [{ role: "user", content: text }],
       }),
@@ -45,9 +44,7 @@ Rules:
       try {
         const errJson = JSON.parse(rawBody) as { error?: { message?: string } };
         detail = errJson.error?.message || detail;
-      } catch {
-        /* keep detail */
-      }
+      } catch { /* keep detail */ }
       return NextResponse.json(
         { error: `Claude API error ${res.status}: ${detail}` },
         { status: 502 }
