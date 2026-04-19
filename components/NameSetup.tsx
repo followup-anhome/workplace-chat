@@ -75,15 +75,19 @@ export default function NameSetup({ onDone, skipLang = false }: {
           </div>
         )}
 
-        {/* フラグアニメーション */}
-        <div style={{ display: "flex", justifyContent: "center", gap: "4px", marginBottom: "4px", flexWrap: "wrap" }}>
-          {LANGUAGES.map((l, i) => (
-            <span key={i} style={{ fontSize: i === frame % LANGUAGES.length ? "18pt" : "12pt", transition: "font-size 0.3s", opacity: i === frame % LANGUAGES.length ? 1 : 0.4 }}>{l.flag}</span>
-          ))}
-        </div>
-        <div style={{ fontSize: "8.5pt", color: "#93c5fd", fontFamily: "Helvetica, sans-serif" }}>
-          {LANGUAGES.length}言語 AI自動翻訳
-        </div>
+        {/* フラグアニメーション（skipLang=trueの場合は非表示） */}
+        {!skipLang && (
+          <>
+            <div style={{ display: "flex", justifyContent: "center", gap: "4px", marginBottom: "4px", flexWrap: "wrap" }}>
+              {LANGUAGES.map((l, i) => (
+                <span key={i} style={{ fontSize: i === frame % LANGUAGES.length ? "18pt" : "12pt", transition: "font-size 0.3s", opacity: i === frame % LANGUAGES.length ? 1 : 0.4 }}>{l.flag}</span>
+              ))}
+            </div>
+            <div style={{ fontSize: "8.5pt", color: "#93c5fd", fontFamily: "Helvetica, sans-serif" }}>
+              {LANGUAGES.length}言語 AI自動翻訳
+            </div>
+          </>
+        )}
       </div>
 
       {/* カード */}
