@@ -180,6 +180,7 @@ export default function Chat({ name, role, room, onBack }: {
   };
 
   const getLangFlag = (msg: Message) => {
+    if (!msg.sender) return "🌏";
     if (msg.sender.startsWith("🤖")) return "🤖";
     const t = parseTranslations(msg);
     if (t.ja && msg.original === t.ja) return "🇯🇵";
@@ -187,7 +188,7 @@ export default function Chat({ name, role, room, onBack }: {
     return "🌏";
   };
 
-  const isAI = (msg: Message) => msg.sender.startsWith("🤖");
+  const isAI = (msg: Message) => msg.sender?.startsWith("🤖");
 
   return (
     <div style={{
