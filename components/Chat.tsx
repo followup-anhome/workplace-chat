@@ -325,8 +325,8 @@ export default function Chat({ name, role, room, onBack }: {
                   padding: "6px 10px", lineHeight: "1.7",
                   wordBreak: "break-word", maxWidth: "100%",
                 }}>
-                  {t.ja && msg.original !== t.ja && <div>🇯🇵 {t.ja}</div>}
-                  {t.en && msg.original !== t.en && <div>🇺🇸 {t.en}</div>}
+                  {t.ja &&  <div>🇯🇵 {t.ja}</div>}
+                  {t.en && <div>🇺🇸 {t.en}</div>}
                 </div>
               )}
             </div>
