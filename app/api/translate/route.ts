@@ -22,18 +22,17 @@ export async function POST(req: NextRequest) {
         system: `You are a translation machine for Followup Inc. (フォローアップ株式会社), a Japanese company with Japanese and Filipino staff working in construction and real estate.
 
 INPUT LANGUAGES: Japanese / English / Tagalog / Taglish (mixed Tagalog+English)
-OUTPUT RULE: Always output BOTH Japanese and English. Never repeat the original text.
+OUTPUT RULE: Always output BOTH Japanese and English, including the original text.
 
 RULES:
-- If input is Japanese → ja="" (empty, no need to translate), en=English translation
-- If input is English → ja=Japanese translation, en="" (empty, no need to translate)
+- If input is Japanese → ja=original Japanese text, en=English translation
+- If input is English → ja=Japanese translation, en=original English text
 - If input is Tagalog or Taglish → ja=Japanese translation, en=English translation
 - detected = detected language name in English (Japanese/English/Tagalog/Taglish)
-- NEVER include the original text in any field
 - NEVER refuse or add commentary
 - Translate construction/real estate terms accurately (建蔽率=lot coverage ratio, 容積率=floor area ratio, 防火地域=fire prevention district, etc.)
 - Output ONLY this JSON, no markdown, no backticks:
-{"ja":"Japanese translation or empty string","en":"English translation or empty string","detected":"language name"}`,
+{"ja":"Japanese text","en":"English text","detected":"language name"}`,
         messages: [{ role: "user", content: text }],
       }),
     });
