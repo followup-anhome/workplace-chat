@@ -1,23 +1,41 @@
 "use client";
-import { useState } from "react";
-import NameSetup from "@/components/NameSetup";
-import RoomSelect from "@/components/RoomSelect";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
 import Chat from "@/components/Chat";
-import { MODE } from "@/lib/config";
+import RoomSelect from "@/components/RoomSelect";
+import NameSetup from "@/components/NameSetup";
 
-// unoとfollowupは言語選択不要（日本語+英語2段表示固定）
-const SKIP_LANG_SELECT = MODE === "uno" || MODE === "followup";
+type Step = "loading" | "name" | "room" | "chat";
 
 export default function Home() {
-  const [name, setName]     = useState("");
-  const [langCode, setLang] = useState(SKIP_LANG_SELECT ? "ja" : "");
-  const [room, setRoom]     = useState("");
+  const [step, setStep] = useState<Step>("loading");
+  const [name, setName] = useState("");
+  const [role, setRole] = useState<"jp" | "en">("jp");
+  const [room, setRoom] = useState("");
 
-  if (!name || (!SKIP_LANG_SELECT && !langCode)) {
-    return <NameSetup onDone={(n, l) => { setName(n); setLang(l); }} skipLang={SKIP_LANG_SELECT} />;
-  }
-  if (!room) {
-    return <RoomSelect name={name} langCode={langCode} onSelect={setRoom} />;
-  }
-  return <Chat name={name} langCode={langCode} room={room} onBack={() => setRoom("")} />;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    const savedName = localStorage.getItem("wc_name") ?? "";
+    const savedRole = (localStorage.getItem("wc_role") ?? "jp") as "jp" | "en";
+    setName(savedName);
+    setRole(savedRole);
+    setStep(savedName ? "room" : "name");
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  }, []); // eslint-disable-line react-hooks/set-state-in-effect
+
+  if (step === "loading") return null;
+
+  if (step === "name") return (
+    <NameSetup onDone={(n, r) => {
+      localStorage.setItem("wc_name", n);
+      localStorage.setItem("wc_role", r);
+      setName(n); setRole(r); setStep("room");
+    }} />
+  );
+
+  if (step === "room") return (
+    <RoomSelect name={name} onSelect={(r) => { setRoom(r); setStep("chat"); }} />
+  );
+
+  return <Chat name={name} role={role} room={room} onBack={() => setStep("room")} />;
 }
