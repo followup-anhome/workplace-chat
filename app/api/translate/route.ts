@@ -1,18 +1,13 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 
-const MODEL =
-  process.env.ANTHROPIC_MODEL?.trim() || "claude-haiku-4-5-20251001";
-
 export async function POST(req: NextRequest) {
   try {
     const { text } = await req.json();
-    if (!text || typeof text !== "string")
-      return NextResponse.json({ error: "text required" }, { status: 400 });
+    if (!text) return NextResponse.json({ error: "text required" }, { status: 400 });
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey)
-      return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+    if (!apiKey) return NextResponse.json({ error: "API key not configured" }, { status: 500 });
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -22,41 +17,29 @@ export async function POST(req: NextRequest) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 512,
-        system: `You are a translation assistant. Always translate any input into BOTH Japanese and English.
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        system: `You are a translation machine for Followup Inc. (フォローアップ株式会社), a Japanese company with Japanese and Filipino staff working in construction and real estate.
 
-Return ONLY valid JSON with exactly these keys: ja, en, detected.
-Shape: {"ja":"...","en":"...","detected":"..."}
+INPUT LANGUAGES: Japanese / English / Tagalog / Taglish (mixed Tagalog+English)
+OUTPUT RULE: Always output BOTH Japanese and English, including the original text.
 
-Rules:
-- "detected": source language name in English (e.g. Japanese, Tagalog, English, Vietnamese).
-- "ja": Japanese translation (if input is already Japanese, keep it as-is).
-- "en": English translation (if input is already English, keep it as-is).
-- No markdown, no code fences, no commentary. JSON only.`,
+RULES:
+- If input is Japanese → ja=original Japanese text, en=English translation
+- If input is English → ja=Japanese translation, en=original English text
+- If input is Tagalog or Taglish → ja=Japanese translation, en=English translation
+- detected = detected language name in English (Japanese/English/Tagalog/Taglish)
+- NEVER refuse or add commentary
+- Translate construction/real estate terms accurately (建蔽率=lot coverage ratio, 容積率=floor area ratio, 防火地域=fire prevention district, etc.)
+- Output ONLY this JSON, no markdown, no backticks:
+{"ja":"Japanese text","en":"English text","detected":"language name"}`,
         messages: [{ role: "user", content: text }],
       }),
     });
 
-    const rawBody = await res.text();
-    if (!res.ok) {
-      let detail = rawBody.slice(0, 900);
-      try {
-        const errJson = JSON.parse(rawBody) as { error?: { message?: string } };
-        detail = errJson.error?.message || detail;
-      } catch { /* keep detail */ }
-      return NextResponse.json(
-        { error: `Claude API error ${res.status}: ${detail}` },
-        { status: 502 }
-      );
-    }
-
-    const apiData = JSON.parse(rawBody) as {
-      content?: { type?: string; text?: string }[];
-    };
-    const raw = apiData.content?.[0]?.text?.trim();
-    if (!raw)
-      return NextResponse.json({ error: "Empty model response" }, { status: 502 });
+    if (!res.ok) throw new Error("Claude API error: " + res.status);
+    const data = await res.json();
+    const raw = data.content?.[0]?.text?.trim();
 
     const clean = raw
       .replace(/^```json\s*/i, "")
@@ -65,13 +48,10 @@ Rules:
       .trim();
 
     try {
-      const parsed = JSON.parse(clean) as Record<string, string>;
+      const parsed = JSON.parse(clean);
       return NextResponse.json({ translations: parsed, original: text });
     } catch {
-      return NextResponse.json(
-        { error: "Could not parse translation JSON", translated: clean, original: text },
-        { status: 502 }
-      );
+      return NextResponse.json({ translated: clean, original: text });
     }
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
